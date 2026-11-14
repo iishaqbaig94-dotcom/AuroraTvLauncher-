@@ -1,3 +1,4 @@
+
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
@@ -8,6 +9,14 @@
     <uses-feature
         android:name="android.hardware.touchscreen"
         android:required="false" />
+
+    <queries>
+        <package android:name="com.google.android.youtube.tv" />
+        <package android:name="com.netflix.ninja" />
+        <package android:name="com.amazon.amazonvideo.livingroom" />
+        <package android:name="com.disney.disneyplus" />
+        <package android:name="com.spotify.tv.android" />
+    </queries>
 
     <application
         android:allowBackup="true"
@@ -26,16 +35,12 @@
             </intent-filter>
 
         </activity>
-       <activity
-    android:name=".PictureStudioActivity"
-    android:exported="false"
-    android:screenOrientation="landscape" />
-        <queries>
-    <package android:name="com.google.android.youtube.tv" />
-    <package android:name="com.netflix.ninja" />
-    <package android:name="com.amazon.amazonvideo.livingroom" />
-    <package android:name="com.disney.disneyplus" />
-    <package android:name="com.spotify.tv.android" />
-</queries>
+
+        <activity
+            android:name=".PictureStudioActivity"
+            android:exported="false"
+            android:screenOrientation="landscape" />
+
     </application>
+
 </manifest>
