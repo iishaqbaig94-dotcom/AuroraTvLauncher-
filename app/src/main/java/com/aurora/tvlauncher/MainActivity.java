@@ -163,10 +163,12 @@ public class MainActivity extends Activity {
     private void openApp(String name) {
 
         if (name.equals("Picture Studio")) {
-            Toast.makeText(this,
-                "Picture Studio coming soon!",
-                Toast.LENGTH_SHORT).show();
-            return;
+    Intent intent = new Intent(
+        MainActivity.this,
+        PictureStudioActivity.class
+    );
+    startActivity(intent);
+    return;
         }
 
         if (name.equals("Movies") ||
