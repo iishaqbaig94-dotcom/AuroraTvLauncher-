@@ -5,32 +5,48 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.HorizontalScrollView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 public class MainActivity extends Activity {
 
-    LinearLayout mainLayout;
+    private LinearLayout mainLayout;
+    private LinearLayout appRow;
+    private final Set<String> addedPackages = new HashSet<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        getWindow().setStatusBarColor(Color.rgb(5,8,23));
-        getWindow().setNavigationBarColor(Color.rgb(5,8,23));
+        getWindow().setStatusBarColor(Color.rgb(5, 8, 23));
+        getWindow().setNavigationBarColor(Color.rgb(5, 8, 23));
+
+        ScrollView pageScroll = new ScrollView(this);
+        pageScroll.setFillViewport(true);
+        pageScroll.setBackgroundColor(Color.rgb(5, 8, 23));
 
         mainLayout = new LinearLayout(this);
         mainLayout.setOrientation(LinearLayout.VERTICAL);
-        mainLayout.setPadding(40,25,40,25);
-        mainLayout.setBackgroundColor(Color.rgb(5,8,23));
+        mainLayout.setPadding(40, 25, 40, 35);
+        mainLayout.setBackgroundColor(Color.rgb(5, 8, 23));
+
+        pageScroll.addView(mainLayout);
 
         TextView title = new TextView(this);
         title.setText("∞  AURORA TV");
@@ -43,7 +59,7 @@ public class MainActivity extends Activity {
         subtitle.setText("INFINITY X  •  THE FUTURE OF ENTERTAINMENT");
         subtitle.setTextColor(Color.LTGRAY);
         subtitle.setTextSize(12);
-        subtitle.setPadding(0,5,0,20);
+        subtitle.setPadding(0, 5, 0, 20);
         mainLayout.addView(subtitle);
 
         addHero();
@@ -52,171 +68,274 @@ public class MainActivity extends Activity {
 
         HorizontalScrollView appScroll = new HorizontalScrollView(this);
         appScroll.setHorizontalScrollBarEnabled(false);
+        appScroll.setFocusable(false);
 
-        LinearLayout appRow = new LinearLayout(this);
+        appRow = new LinearLayout(this);
         appRow.setOrientation(LinearLayout.HORIZONTAL);
-
-        String[] apps = {
-            "YouTube", "Netflix", "Prime Video",
-            "Disney+", "Spotify", "Settings"
-        };
-
-        for (String app : apps) {
-            addApp(appRow, app);
-        }
 
         appScroll.addView(appRow);
         mainLayout.addView(appScroll);
 
-        addSection("CONTINUE WATCHING");
+        loadInstalledApps();
 
-        addApp(mainLayout, "Continue Watching");
+        addSection("CONTINUE WATCHING");
+        addApp(mainLayout, "Continue Watching", null, null, false);
 
         addSection("EXPLORE");
+        addApp(mainLayout, "Movies", null, null, false);
+        addApp(mainLayout, "TV Shows", null, null, false);
+        addApp(mainLayout, "Picture Studio", null, null, false);
 
-        addApp(mainLayout, "Movies");
-        addApp(mainLayout, "TV Shows");
-        addApp(mainLayout, "Picture Studio");
-
-        setContentView(mainLayout);
+        setContentView(pageScroll);
     }
 
     private void addHero() {
         TextView hero = new TextView(this);
-        hero.setText("WELCOME TO\nAURORA TV ∞\n\nYOUR ENTERTAINMENT. YOUR UNIVERSE.");
+
+        hero.setText(
+            "WELCOME TO\nAURORA TV ∞\n\n" +
+            "YOUR ENTERTAINMENT. YOUR UNIVERSE."
+        );
+
         hero.setTextSize(23);
         hero.setTextColor(Color.WHITE);
         hero.setGravity(Gravity.CENTER_VERTICAL);
-        hero.setPadding(30,25,30,25);
+        hero.setPadding(30, 25, 30, 25);
         hero.setTypeface(null, Typeface.BOLD);
 
         GradientDrawable bg = new GradientDrawable(
             GradientDrawable.Orientation.LEFT_RIGHT,
             new int[] {
-                Color.rgb(12,35,85),
-                Color.rgb(70,25,120)
+                Color.rgb(12, 35, 85),
+                Color.rgb(70, 25, 120)
             }
         );
+
         bg.setCornerRadius(28);
         bg.setStroke(2, Color.CYAN);
         hero.setBackground(bg);
 
         LinearLayout.LayoutParams params =
-            new LinearLayout.LayoutParams(-1,230);
-        params.setMargins(0,10,0,20);
+            new LinearLayout.LayoutParams(-1, 230);
 
-        mainLayout.addView(hero,params);
+        params.setMargins(0, 10, 0, 20);
+        mainLayout.addView(hero, params);
     }
 
     private void addSection(String name) {
         TextView section = new TextView(this);
+
         section.setText(name);
         section.setTextSize(19);
-        section.setTextColor(Color.rgb(120,160,255));
+        section.setTextColor(Color.rgb(120, 160, 255));
         section.setTypeface(null, Typeface.BOLD);
-        section.setPadding(0,18,0,12);
+        section.setPadding(0, 18, 0, 12);
+
         mainLayout.addView(section);
     }
 
-    private void addApp(LinearLayout parent, String name) {
+    private void loadInstalledApps() {
+        List<ResolveInfo> apps = new ArrayList<>();
+
+        // Android TV launcher apps
+        Intent leanbackIntent = new Intent(Intent.ACTION_MAIN);
+        leanbackIntent.addCategory(
+            "android.intent.category.LEANBACK_LAUNCHER"
+        );
+
+        apps.addAll(queryApps(leanbackIntent));
+
+        // Also find normal Android launcher apps
+        Intent normalIntent = new Intent(Intent.ACTION_MAIN);
+        normalIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+
+        apps.addAll(queryApps(normalIntent));
+
+        Collections.sort(apps, (a, b) ->
+            getAppName(a).compareToIgnoreCase(getAppName(b))
+        );
+
+        int count = 0;
+
+        for (ResolveInfo info : apps) {
+            String packageName = info.activityInfo.packageName;
+
+            if (packageName == null ||
+                packageName.equals(getPackageName()) ||
+                addedPackages.contains(packageName)) {
+                continue;
+            }
+
+            addedPackages.add(packageName);
+
+            addApp(
+                appRow,
+                getAppName(info),
+                packageName,
+                info.activityInfo.name,
+                true
+            );
+
+            count++;
+        }
+
+        // Keep Settings available
+        addApp(appRow, "Settings", null, null, true);
+
+        if (count == 0) {
+            TextView empty = new TextView(this);
+            empty.setText("No installed apps found");
+            empty.setTextColor(Color.LTGRAY);
+            empty.setTextSize(16);
+            empty.setPadding(10, 20, 10, 20);
+            appRow.addView(empty);
+        }
+    }
+
+    private List<ResolveInfo> queryApps(Intent intent) {
+        PackageManager pm = getPackageManager();
+
+        if (android.os.Build.VERSION.SDK_INT >= 33) {
+            return pm.queryIntentActivities(
+                intent,
+                PackageManager.ResolveInfoFlags.of(0)
+            );
+        } else {
+            return pm.queryIntentActivities(intent, 0);
+        }
+    }
+
+    private String getAppName(ResolveInfo info) {
+        CharSequence label = info.loadLabel(getPackageManager());
+
+        if (label == null) {
+            return info.activityInfo.packageName;
+        }
+
+        return label.toString();
+    }
+
+    private void addApp(
+        LinearLayout parent,
+        String name,
+        String packageName,
+        String activityName,
+        boolean horizontal
+    ) {
         TextView app = new TextView(this);
-        app.setText(name + "  ➜");
+
+        app.setText(name);
         app.setTextSize(17);
         app.setTextColor(Color.WHITE);
         app.setGravity(Gravity.CENTER);
+        app.setTypeface(null, Typeface.BOLD);
         app.setFocusable(true);
         app.setClickable(true);
-        app.setPadding(20,18,20,18);
+        app.setPadding(16, 18, 16, 18);
+
+        if (packageName != null) {
+            try {
+                Drawable icon = getPackageManager()
+                    .getApplicationIcon(packageName);
+
+                icon.setBounds(0, 0, 52, 52);
+                app.setCompoundDrawables(null, icon, null, null);
+                app.setCompoundDrawablePadding(12);
+            } catch (Exception ignored) {
+            }
+        }
 
         GradientDrawable normal = new GradientDrawable();
-        normal.setColor(Color.rgb(24,31,60));
+        normal.setColor(Color.rgb(24, 31, 60));
         normal.setCornerRadius(18);
-        normal.setStroke(1,Color.rgb(45,95,180));
+        normal.setStroke(1, Color.rgb(45, 95, 180));
 
         GradientDrawable focused = new GradientDrawable();
-        focused.setColor(Color.rgb(45,40,100));
+        focused.setColor(Color.rgb(45, 40, 100));
         focused.setCornerRadius(18);
-        focused.setStroke(3,Color.CYAN);
+        focused.setStroke(3, Color.CYAN);
 
         app.setBackground(normal);
-        app.setOnFocusChangeListener((v, hasFocus) ->
+
+        app.setOnFocusChangeListener((view, hasFocus) ->
             app.setBackground(hasFocus ? focused : normal)
         );
 
-        app.setOnClickListener(v -> openApp(name));
+        app.setOnClickListener(view ->
+            openApp(name, packageName, activityName)
+        );
 
-        LinearLayout.LayoutParams params =
-            new LinearLayout.LayoutParams(
-                name.equals("YouTube") ||
-                name.equals("Netflix") ||
-                name.equals("Prime Video") ||
-                name.equals("Disney+") ||
-                name.equals("Spotify") ||
-                name.equals("Settings") ? 190 : -1,
-                -2
-            );
+        LinearLayout.LayoutParams params;
 
-        params.setMargins(5,5,12,5);
-        parent.addView(app,params);
+        if (horizontal) {
+            params = new LinearLayout.LayoutParams(190, 125);
+        } else {
+            params = new LinearLayout.LayoutParams(-1, -2);
+        }
+
+        params.setMargins(5, 5, 12, 8);
+        parent.addView(app, params);
     }
 
-    private void openApp(String name) {
-
-        if (name.equals("Picture Studio")) {
-    Intent intent = new Intent(
-        MainActivity.this,
-        PictureStudioActivity.class
-    );
-    startActivity(intent);
-    return;
+    private void openApp(
+        String name,
+        String packageName,
+        String activityName
+    ) {
+        if ("Picture Studio".equals(name)) {
+            Intent intent = new Intent(
+                MainActivity.this,
+                PictureStudioActivity.class
+            );
+            startActivity(intent);
+            return;
         }
 
-        if (name.equals("Movies") ||
-            name.equals("TV Shows") ||
-            name.equals("Continue Watching")) {
-            Toast.makeText(this,
+        if ("Movies".equals(name) ||
+            "TV Shows".equals(name) ||
+            "Continue Watching".equals(name)) {
+
+            Toast.makeText(
+                this,
                 name + " coming soon!",
-                Toast.LENGTH_SHORT).show();
+                Toast.LENGTH_SHORT
+            ).show();
+
             return;
         }
 
-        String packageName = null;
-
-        switch(name) {
-            case "YouTube":
-                packageName = "com.google.android.youtube.tv";
-                break;
-            case "Netflix":
-                packageName = "com.netflix.ninja";
-                break;
-            case "Prime Video":
-                packageName = "com.amazon.amazonvideo.livingroom";
-                break;
-            case "Disney+":
-                packageName = "com.disney.disneyplus";
-                break;
-            case "Spotify":
-                packageName = "com.spotify.tv.android";
-                break;
-        }
-
-        if (name.equals("Settings")) {
+        if ("Settings".equals(name)) {
             startActivity(new Intent(
-                android.provider.Settings.ACTION_SETTINGS));
+                android.provider.Settings.ACTION_SETTINGS
+            ));
             return;
         }
 
-        if (packageName != null) {
-            Intent launch = getPackageManager()
-                .getLaunchIntentForPackage(packageName);
-
-            if (launch != null) {
+        if (packageName != null && activityName != null) {
+            try {
+                Intent launch = new Intent(Intent.ACTION_MAIN);
+                launch.setClassName(packageName, activityName);
+                launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(launch);
-            } else {
-                Toast.makeText(this,
-                    name + " is not installed",
-                    Toast.LENGTH_SHORT).show();
+            } catch (Exception e) {
+                Toast.makeText(
+                    this,
+                    "Unable to open " + name,
+                    Toast.LENGTH_SHORT
+                ).show();
             }
         }
     }
-}
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (mainLayout != null && appRow != null) {
+            appRow.removeAllViews();
+            addedPackages.clear();
+            loadInstalledApps();
+        }
+    }
+                }
+
