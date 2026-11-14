@@ -1,4 +1,3 @@
-
 package com.aurora.tvlauncher;
 
 import android.app.Activity;
@@ -15,6 +14,7 @@ import android.net.Uri;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -54,12 +54,19 @@ public class MainActivity extends Activity {
         {5, 15, 40, 20, 80, 100}
     };
 
+    private int dp(float value) {
+        return (int) (value * getResources()
+            .getDisplayMetrics().density + 0.5f);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         getWindow().setStatusBarColor(DARK);
         getWindow().setNavigationBarColor(DARK);
+
+        getWindow().getDecorView().setSystemUiVisibility(0);
 
         FrameLayout root = new FrameLayout(this);
 
@@ -75,7 +82,7 @@ public class MainActivity extends Activity {
 
         View overlay = new View(this);
         overlay.setBackgroundColor(
-            Color.argb(155, 3, 6, 20)
+            Color.argb(175, 3, 6, 20)
         );
 
         root.addView(
@@ -93,7 +100,9 @@ public class MainActivity extends Activity {
 
         mainLayout = new LinearLayout(this);
         mainLayout.setOrientation(LinearLayout.VERTICAL);
-        mainLayout.setPadding(40, 25, 40, 45);
+        mainLayout.setPadding(
+            dp(40), dp(25), dp(40), dp(45)
+        );
         mainLayout.setBackgroundColor(Color.TRANSPARENT);
 
         pageScroll.addView(mainLayout);
@@ -109,6 +118,26 @@ public class MainActivity extends Activity {
         buildHomeScreen();
     }
 
+    private GradientDrawable gradient(
+        int[] colors,
+        float radius,
+        int strokeColor,
+        int strokeWidth
+    ) {
+        GradientDrawable bg = new GradientDrawable(
+            GradientDrawable.Orientation.TL_BR,
+            colors
+        );
+
+        bg.setCornerRadius(dp(radius));
+
+        if (strokeWidth > 0) {
+            bg.setStroke(dp(strokeWidth), strokeColor);
+        }
+
+        return bg;
+    }
+
     private void buildHomeScreen() {
 
         addTopBar();
@@ -121,6 +150,7 @@ public class MainActivity extends Activity {
 
         appScroll.setHorizontalScrollBarEnabled(false);
         appScroll.setFocusable(false);
+        appScroll.setClipToPadding(false);
         appScroll.setDescendantFocusability(
             ViewGroup.FOCUS_AFTER_DESCENDANTS
         );
@@ -129,7 +159,11 @@ public class MainActivity extends Activity {
         appRow.setOrientation(LinearLayout.HORIZONTAL);
 
         appScroll.addView(appRow);
-        mainLayout.addView(appScroll);
+
+        mainLayout.addView(
+            appScroll,
+            new LinearLayout.LayoutParams(-1, -2)
+        );
 
         loadInstalledApps();
 
@@ -171,8 +205,10 @@ public class MainActivity extends Activity {
         footer.setText("AURORA TV  ∞  INFINITY X");
         footer.setTextColor(Color.rgb(120, 145, 190));
         footer.setTextSize(11);
+        footer.setLetterSpacing(0.12f);
         footer.setGravity(Gravity.CENTER);
-        footer.setPadding(0, 30, 0, 10);
+        footer.setPadding(0, dp(30), 0, dp(10));
+
         mainLayout.addView(footer);
     }
 
@@ -190,6 +226,8 @@ public class MainActivity extends Activity {
         title.setTextSize(29);
         title.setTypeface(null, Typeface.BOLD);
         title.setTextColor(CYAN);
+        title.setLetterSpacing(0.04f);
+
         brand.addView(title);
 
         TextView subtitle = new TextView(this);
@@ -198,8 +236,9 @@ public class MainActivity extends Activity {
         );
         subtitle.setTextColor(Color.LTGRAY);
         subtitle.setTextSize(10);
-        subtitle.setLetterSpacing(0.08f);
-        subtitle.setPadding(2, 5, 0, 0);
+        subtitle.setLetterSpacing(0.10f);
+        subtitle.setPadding(dp(2), dp(5), 0, 0);
+
         brand.addView(subtitle);
 
         top.addView(
@@ -213,12 +252,18 @@ public class MainActivity extends Activity {
         status.setTextSize(11);
         status.setTypeface(null, Typeface.BOLD);
         status.setGravity(Gravity.CENTER);
-        status.setPadding(15, 11, 15, 11);
+        status.setPadding(
+            dp(16), dp(11), dp(16), dp(11)
+        );
 
-        GradientDrawable statusBg = new GradientDrawable();
-        statusBg.setColor(Color.rgb(12, 35, 58));
-        statusBg.setCornerRadius(30);
-        statusBg.setStroke(1, CYAN);
+        GradientDrawable statusBg = gradient(
+            new int[]{
+                Color.rgb(10, 35, 60),
+                Color.rgb(20, 25, 65)
+            },
+            30, CYAN, 1
+        );
+
         status.setBackground(statusBg);
 
         top.addView(status);
@@ -229,12 +274,20 @@ public class MainActivity extends Activity {
         );
 
         View line = new View(this);
-        line.setBackgroundColor(Color.argb(100, 0, 200, 255));
+        line.setBackground(gradient(
+            new int[]{
+                Color.rgb(0, 220, 255),
+                Color.rgb(100, 60, 255),
+                Color.TRANSPARENT
+            },
+            2, Color.TRANSPARENT, 0
+        ));
 
         LinearLayout.LayoutParams lineParams =
-            new LinearLayout.LayoutParams(-1, 1);
+            new LinearLayout.LayoutParams(-1, dp(2));
 
-        lineParams.setMargins(0, 18, 0, 10);
+        lineParams.setMargins(0, dp(18), 0, dp(10));
+
         mainLayout.addView(line, lineParams);
     }
 
@@ -243,49 +296,58 @@ public class MainActivity extends Activity {
         LinearLayout hero = new LinearLayout(this);
         hero.setOrientation(LinearLayout.VERTICAL);
         hero.setGravity(Gravity.CENTER_VERTICAL);
-        hero.setPadding(30, 25, 30, 25);
 
-        GradientDrawable bg = new GradientDrawable(
-            GradientDrawable.Orientation.TL_BR,
-            new int[] {
-                Color.rgb(5, 35, 90),
-                Color.rgb(35, 25, 105),
-                Color.rgb(95, 25, 145)
-            }
+        hero.setPadding(
+            dp(32), dp(25), dp(32), dp(25)
         );
 
-        bg.setCornerRadius(28);
-        bg.setStroke(2, CYAN);
+        GradientDrawable bg = gradient(
+            new int[]{
+                Color.rgb(5, 35, 90),
+                Color.rgb(30, 25, 105),
+                Color.rgb(90, 25, 145)
+            },
+            28, CYAN, 2
+        );
+
         hero.setBackground(bg);
-        hero.setElevation(8);
+        hero.setElevation(dp(12));
 
         TextView small = new TextView(this);
-        small.setText("WELCOME TO YOUR UNIVERSE  ✦");
+        small.setText("✦  WELCOME TO YOUR UNIVERSE");
         small.setTextColor(CYAN);
         small.setTextSize(12);
         small.setTypeface(null, Typeface.BOLD);
+        small.setLetterSpacing(0.10f);
+
         hero.addView(small);
 
         TextView heading = new TextView(this);
         heading.setText("AURORA TV ∞");
         heading.setTextColor(WHITE);
-        heading.setTextSize(34);
+        heading.setTextSize(36);
         heading.setTypeface(null, Typeface.BOLD);
-        heading.setPadding(0, 10, 0, 5);
+        heading.setLetterSpacing(0.03f);
+        heading.setPadding(0, dp(10), 0, dp(5));
+
         hero.addView(heading);
 
         TextView description = new TextView(this);
         description.setText(
             "YOUR ENTERTAINMENT.\nYOUR UNIVERSE."
         );
-        description.setTextColor(Color.LTGRAY);
+        description.setTextColor(
+            Color.rgb(220, 230, 255)
+        );
         description.setTextSize(15);
+        description.setLineSpacing(dp(3), 1f);
+
         hero.addView(description);
 
         LinearLayout actions = new LinearLayout(this);
         actions.setOrientation(LinearLayout.HORIZONTAL);
         actions.setGravity(Gravity.CENTER_VERTICAL);
-        actions.setPadding(0, 18, 0, 0);
+        actions.setPadding(0, dp(18), 0, 0);
 
         addActionButton(
             actions,
@@ -297,16 +359,20 @@ public class MainActivity extends Activity {
             actions,
             "PICTURE STUDIO",
             () -> startActivity(
-                new Intent(this, PictureStudioActivity.class)
+                new Intent(
+                    this,
+                    PictureStudioActivity.class
+                )
             )
         );
 
         hero.addView(actions);
 
         LinearLayout.LayoutParams params =
-            new LinearLayout.LayoutParams(-1, 250);
+            new LinearLayout.LayoutParams(-1, dp(255));
 
-        params.setMargins(0, 12, 0, 20);
+        params.setMargins(0, dp(12), 0, dp(20));
+
         mainLayout.addView(hero, params);
     }
 
@@ -324,36 +390,40 @@ public class MainActivity extends Activity {
         button.setGravity(Gravity.CENTER);
         button.setFocusable(true);
         button.setClickable(true);
-        button.setPadding(15, 13, 15, 13);
 
-        GradientDrawable normal = new GradientDrawable();
-        normal.setColor(Color.rgb(15, 45, 90));
-        normal.setCornerRadius(15);
-        normal.setStroke(1, CYAN);
+        button.setPadding(
+            dp(16), dp(13), dp(16), dp(13)
+        );
 
-        GradientDrawable focused = new GradientDrawable();
-        focused.setColor(Color.rgb(65, 45, 135));
-        focused.setCornerRadius(15);
-        focused.setStroke(3, WHITE);
+        GradientDrawable normal = gradient(
+            new int[]{
+                Color.rgb(15, 45, 90),
+                Color.rgb(30, 30, 95)
+            },
+            15, CYAN, 1
+        );
+
+        GradientDrawable focused = gradient(
+            new int[]{
+                Color.rgb(70, 45, 155),
+                Color.rgb(25, 100, 170)
+            },
+            15, WHITE, 3
+        );
 
         button.setBackground(normal);
 
-        button.setOnFocusChangeListener((v, hasFocus) -> {
-            button.setBackground(hasFocus ? focused : normal);
-
-            button.animate()
-                .scaleX(hasFocus ? 1.06f : 1f)
-                .scaleY(hasFocus ? 1.06f : 1f)
-                .setDuration(130)
-                .start();
-        });
+        applyFocusEffect(
+            button, normal, focused, 1.06f
+        );
 
         button.setOnClickListener(v -> action.run());
 
         LinearLayout.LayoutParams p =
-            new LinearLayout.LayoutParams(-2, 52);
+            new LinearLayout.LayoutParams(-2, dp(52));
 
-        p.setMargins(0, 0, 12, 0);
+        p.setMargins(0, 0, dp(12), 0);
+
         parent.addView(button, p);
     }
 
@@ -362,10 +432,13 @@ public class MainActivity extends Activity {
         TextView section = new TextView(this);
         section.setText(name);
         section.setTextSize(17);
-        section.setTextColor(Color.rgb(145, 190, 255));
+        section.setTextColor(
+            Color.rgb(145, 190, 255)
+        );
         section.setTypeface(null, Typeface.BOLD);
         section.setLetterSpacing(0.06f);
-        section.setPadding(0, 22, 0, 12);
+
+        section.setPadding(0, dp(22), 0, dp(12));
 
         mainLayout.addView(section);
     }
@@ -373,13 +446,19 @@ public class MainActivity extends Activity {
     private void addWallpaperBackground() {
 
         android.content.SharedPreferences prefs =
-            getSharedPreferences("AuroraWallpaper", MODE_PRIVATE);
+            getSharedPreferences(
+                "AuroraWallpaper", MODE_PRIVATE
+            );
 
-        String custom = prefs.getString("custom_wallpaper", null);
+        String custom = prefs.getString(
+            "custom_wallpaper", null
+        );
 
         if (custom != null) {
             try {
-                wallpaperBackground.setImageURI(Uri.parse(custom));
+                wallpaperBackground.setImageURI(
+                    Uri.parse(custom)
+                );
 
                 if (wallpaperBackground.getDrawable() != null) {
                     return;
@@ -398,7 +477,7 @@ public class MainActivity extends Activity {
 
         GradientDrawable gradient = new GradientDrawable(
             GradientDrawable.Orientation.TL_BR,
-            new int[] {
+            new int[]{
                 Color.rgb(c[0], c[1], c[2]),
                 Color.rgb(c[3], c[4], c[5])
             }
@@ -406,20 +485,39 @@ public class MainActivity extends Activity {
 
         wallpaperBackground.setImageDrawable(gradient);
     }
+           private List<ResolveInfo> queryApps(Intent intent) {
+
+        PackageManager pm = getPackageManager();
+
+        if (android.os.Build.VERSION.SDK_INT >= 33) {
+            return pm.queryIntentActivities(
+                intent,
+                PackageManager.ResolveInfoFlags.of(0)
+            );
+        }
+
+        return pm.queryIntentActivities(intent, 0);
+    }
 
     private void loadInstalledApps() {
 
         List<ResolveInfo> apps = new ArrayList<>();
 
-        Intent leanbackIntent = new Intent(Intent.ACTION_MAIN);
+        Intent leanbackIntent =
+            new Intent(Intent.ACTION_MAIN);
+
         leanbackIntent.addCategory(
             "android.intent.category.LEANBACK_LAUNCHER"
         );
 
         apps.addAll(queryApps(leanbackIntent));
 
-        Intent normalIntent = new Intent(Intent.ACTION_MAIN);
-        normalIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+        Intent normalIntent =
+            new Intent(Intent.ACTION_MAIN);
+
+        normalIntent.addCategory(
+            Intent.CATEGORY_LAUNCHER
+        );
 
         apps.addAll(queryApps(normalIntent));
 
@@ -433,7 +531,8 @@ public class MainActivity extends Activity {
 
             if (info.activityInfo == null) continue;
 
-            String packageName = info.activityInfo.packageName;
+            String packageName =
+                info.activityInfo.packageName;
 
             if (packageName == null ||
                 packageName.equals(getPackageName()) ||
@@ -461,28 +560,18 @@ public class MainActivity extends Activity {
             empty.setText("No installed apps found");
             empty.setTextColor(Color.LTGRAY);
             empty.setTextSize(16);
-            empty.setPadding(10, 20, 10, 20);
-            appRow.addView(empty);
-        }
-    }
-
-    private List<ResolveInfo> queryApps(Intent intent) {
-
-        PackageManager pm = getPackageManager();
-
-        if (android.os.Build.VERSION.SDK_INT >= 33) {
-            return pm.queryIntentActivities(
-                intent,
-                PackageManager.ResolveInfoFlags.of(0)
+            empty.setPadding(
+                dp(10), dp(20), dp(10), dp(20)
             );
-        } else {
-            return pm.queryIntentActivities(intent, 0);
+
+            appRow.addView(empty);
         }
     }
 
     private String getAppName(ResolveInfo info) {
 
-        CharSequence label = info.loadLabel(getPackageManager());
+        CharSequence label =
+            info.loadLabel(getPackageManager());
 
         if (label == null) {
             return info.activityInfo.packageName;
@@ -502,13 +591,17 @@ public class MainActivity extends Activity {
         TextView app = new TextView(this);
 
         app.setText(name + "   ›");
-        app.setTextSize(17);
+        app.setTextSize(horizontal ? 15 : 17);
         app.setTextColor(WHITE);
         app.setGravity(Gravity.CENTER);
         app.setTypeface(null, Typeface.BOLD);
+
         app.setFocusable(true);
         app.setClickable(true);
-        app.setPadding(16, 18, 16, 18);
+
+        app.setPadding(
+            dp(16), dp(18), dp(16), dp(18)
+        );
 
         app.setImportantForAccessibility(
             View.IMPORTANT_FOR_ACCESSIBILITY_YES
@@ -519,45 +612,64 @@ public class MainActivity extends Activity {
                 Drawable icon = getPackageManager()
                     .getApplicationIcon(packageName);
 
-                icon.setBounds(0, 0, 52, 52);
-                app.setCompoundDrawables(null, icon, null, null);
-                app.setCompoundDrawablePadding(12);
+                icon.setBounds(
+                    0, 0, dp(52), dp(52)
+                );
+
+                app.setCompoundDrawables(
+                    null, icon, null, null
+                );
+
+                app.setCompoundDrawablePadding(dp(12));
+
             } catch (Exception ignored) {
             }
         }
 
-        GradientDrawable normal = new GradientDrawable();
-        normal.setColor(Color.rgb(15, 25, 55));
-        normal.setCornerRadius(20);
-        normal.setStroke(2, Color.rgb(40, 90, 170));
+        GradientDrawable normal = gradient(
+            new int[]{
+                Color.rgb(15, 30, 65),
+                Color.rgb(12, 18, 45)
+            },
+            20,
+            Color.rgb(40, 90, 170),
+            1
+        );
 
-        GradientDrawable focused = new GradientDrawable();
-        focused.setColor(Color.rgb(48, 38, 105));
-        focused.setCornerRadius(20);
-        focused.setStroke(3, CYAN);
+        GradientDrawable focused = gradient(
+            new int[]{
+                Color.rgb(55, 40, 125),
+                Color.rgb(20, 95, 155)
+            },
+            20,
+            CYAN,
+            3
+        );
 
         app.setBackground(normal);
-        app.setElevation(3);
+        app.setElevation(dp(4));
+
+        applyFocusEffect(
+            app, normal, focused, 1.07f
+        );
 
         app.setOnFocusChangeListener((view, hasFocus) -> {
 
-            app.setBackground(hasFocus ? focused : normal);
-
-            app.animate()
-                .scaleX(hasFocus ? 1.05f : 1.0f)
-                .scaleY(hasFocus ? 1.05f : 1.0f)
-                .setDuration(130)
-                .start();
-
             if (hasFocus) {
+
                 lastFocusedName = name;
 
                 app.post(() -> {
+
                     Rect rect = new Rect(
-                        0, 0, app.getWidth(), app.getHeight()
+                        0, 0,
+                        app.getWidth(),
+                        app.getHeight()
                     );
 
-                    app.requestRectangleOnScreen(rect, true);
+                    app.requestRectangleOnScreen(
+                        rect, true
+                    );
                 });
             }
         });
@@ -569,13 +681,49 @@ public class MainActivity extends Activity {
         LinearLayout.LayoutParams params;
 
         if (horizontal) {
-            params = new LinearLayout.LayoutParams(190, 135);
+            params = new LinearLayout.LayoutParams(
+                dp(190), dp(145)
+            );
         } else {
-            params = new LinearLayout.LayoutParams(-1, 75);
+            params = new LinearLayout.LayoutParams(
+                -1, dp(75)
+            );
         }
 
-        params.setMargins(5, 6, 12, 8);
+        params.setMargins(
+            dp(5), dp(6), dp(12), dp(8)
+        );
+
         parent.addView(app, params);
+    }
+
+    private void applyFocusEffect(
+        View view,
+        Drawable normal,
+        Drawable focused,
+        float scale
+    ) {
+
+        view.setOnFocusChangeListener((v, hasFocus) -> {
+
+            view.animate().cancel();
+
+            view.setBackground(
+                hasFocus ? focused : normal
+            );
+
+            view.animate()
+                .scaleX(hasFocus ? scale : 1f)
+                .scaleY(hasFocus ? scale : 1f)
+                .translationZ(
+                    hasFocus ? dp(12) : 0
+                )
+                .setDuration(160)
+                .setInterpolator(
+                    new DecelerateInterpolator()
+                )
+                .start();
+        });
     }
 
     private View findFocusableByName(
@@ -587,19 +735,25 @@ public class MainActivity extends Activity {
 
         String target = name + "   ›";
 
-        for (int i = 0; i < parent.getChildCount(); i++) {
+        for (int i = 0;
+             i < parent.getChildCount();
+             i++) {
 
             View child = parent.getChildAt(i);
 
             if (child instanceof TextView) {
+
                 TextView textView = (TextView) child;
 
-                if (target.equals(textView.getText().toString())) {
+                if (target.equals(
+                    textView.getText().toString()
+                )) {
                     return child;
                 }
             }
 
             if (child instanceof ViewGroup) {
+
                 View result = findFocusableByName(
                     (ViewGroup) child, name
                 );
@@ -621,19 +775,26 @@ public class MainActivity extends Activity {
                 mainLayout, lastFocusedName
             );
 
-            if (target == null && appRow != null &&
+            if (target == null &&
+                appRow != null &&
                 appRow.getChildCount() > 0) {
+
                 target = appRow.getChildAt(0);
             }
 
             if (target != null) {
+
                 target.requestFocus();
 
                 Rect rect = new Rect(
-                    0, 0, target.getWidth(), target.getHeight()
+                    0, 0,
+                    target.getWidth(),
+                    target.getHeight()
                 );
 
-                target.requestRectangleOnScreen(rect, true);
+                target.requestRectangleOnScreen(
+                    rect, true
+                );
             }
         });
     }
@@ -645,26 +806,32 @@ public class MainActivity extends Activity {
     ) {
 
         if ("AURORA INFINITY CLEANER".equals(name)) {
+
             startActivity(new Intent(
                 MainActivity.this,
                 CleanerActivity.class
             ));
+
             return;
         }
 
         if ("Picture Studio".equals(name)) {
+
             startActivity(new Intent(
                 MainActivity.this,
                 PictureStudioActivity.class
             ));
+
             return;
         }
 
         if ("Wallpaper Studio".equals(name)) {
+
             startActivity(new Intent(
                 MainActivity.this,
                 WallpaperActivity.class
             ));
+
             return;
         }
 
@@ -684,30 +851,44 @@ public class MainActivity extends Activity {
         }
 
         if ("Settings".equals(name)) {
+
             try {
                 startActivity(new Intent(
                     android.provider.Settings.ACTION_SETTINGS
                 ));
+
             } catch (Exception e) {
+
                 Toast.makeText(
                     this,
                     "Settings unavailable",
                     Toast.LENGTH_SHORT
                 ).show();
             }
+
             return;
         }
 
-        if (packageName != null && activityName != null) {
-            try {
-                Intent launch = new Intent(Intent.ACTION_MAIN);
+        if (packageName != null &&
+            activityName != null) {
 
-                launch.setClassName(packageName, activityName);
-                launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            try {
+
+                Intent launch =
+                    new Intent(Intent.ACTION_MAIN);
+
+                launch.setClassName(
+                    packageName, activityName
+                );
+
+                launch.addFlags(
+                    Intent.FLAG_ACTIVITY_NEW_TASK
+                );
 
                 startActivity(launch);
 
             } catch (Exception e) {
+
                 Toast.makeText(
                     this,
                     "Unable to open " + name,
@@ -725,11 +906,13 @@ public class MainActivity extends Activity {
         );
 
         intent.putExtra("hub_mode", mode);
+
         startActivity(intent);
     }
 
     @Override
     protected void onResume() {
+
         super.onResume();
 
         if (wallpaperBackground != null) {
@@ -737,6 +920,7 @@ public class MainActivity extends Activity {
         }
 
         if (appRow != null) {
+
             appRow.removeAllViews();
             addedPackages.clear();
 
