@@ -43,6 +43,10 @@
             android:name=".PictureStudioActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".WallpaperActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>
