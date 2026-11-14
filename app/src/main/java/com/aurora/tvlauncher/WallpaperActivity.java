@@ -21,11 +21,15 @@ public class WallpaperActivity extends Activity {
 
     private LinearLayout layout;
     private ImageView preview;
+    private ScrollView scroll;
     private SharedPreferences prefs;
+
+    private View initialFocus;
 
     private final int CYAN = Color.rgb(0, 220, 255);
     private final int PURPLE = Color.rgb(145, 80, 255);
     private final int DARK = Color.rgb(5, 8, 23);
+    private final int CARD = Color.rgb(24, 31, 60);
 
     private final int[][] colors = {
         {5, 8, 23, 15, 55, 130},
@@ -49,22 +53,29 @@ public class WallpaperActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        getWindow().setStatusBarColor(DARK);
+        getWindow().setNavigationBarColor(DARK);
+
         prefs = getSharedPreferences(
             "AuroraWallpaper", MODE_PRIVATE
         );
 
-        ScrollView scroll = new ScrollView(this);
+        scroll = new ScrollView(this);
         scroll.setFillViewport(true);
         scroll.setBackgroundColor(DARK);
+        scroll.setFocusable(false);
 
         layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setPadding(35, 30, 35, 40);
+        layout.setBackgroundColor(DARK);
 
         scroll.addView(layout);
+        setContentView(scroll);
 
         addHeader();
         addPreview();
+
         addHeading("✦  EXCLUSIVE WALLPAPER COLLECTION");
 
         for (int i = 0; i < names.length; i++) {
@@ -73,46 +84,76 @@ public class WallpaperActivity extends Activity {
 
         addHeading("✦  PERSONAL WALLPAPER");
 
-        addButton("＋  CHOOSE FROM GALLERY", CYAN, v -> openGallery());
+        addActionButton(
+            "＋  CHOOSE FROM GALLERY",
+            CYAN,
+            v -> openGallery()
+        );
 
-        addButton("↻  RESTORE DEFAULT", PURPLE, v -> {
-            prefs.edit().clear().apply();
-            updatePreview();
-            Toast.makeText(this,
-                "Default restored", Toast.LENGTH_SHORT).show();
-        });
+        addActionButton(
+            "↻  RESTORE DEFAULT",
+            PURPLE,
+            v -> restoreDefault()
+        );
+
+        addActionButton(
+            "‹  BACK TO AURORA HOME",
+            CYAN,
+            v -> finish()
+        );
 
         TextView footer = new TextView(this);
-        footer.setText("AURORA TV  ∞  INFINITY X\nYOUR WORLD. YOUR STYLE.");
+        footer.setText(
+            "AURORA TV  ∞  INFINITY X\n" +
+            "YOUR WORLD. YOUR STYLE."
+        );
         footer.setTextColor(Color.GRAY);
         footer.setGravity(Gravity.CENTER);
         footer.setTextSize(12);
         footer.setPadding(10, 35, 10, 15);
+
         layout.addView(footer);
 
-        setContentView(scroll);
         updatePreview();
+
+        requestInitialFocus();
     }
 
     private void addHeader() {
+
         TextView title = new TextView(this);
         title.setText("∞  AURORA");
         title.setTextColor(CYAN);
         title.setTextSize(30);
         title.setTypeface(null, Typeface.BOLD);
+
         layout.addView(title);
 
         TextView subtitle = new TextView(this);
         subtitle.setText("INFINITY WALLPAPER STUDIO");
         subtitle.setTextColor(Color.LTGRAY);
         subtitle.setTextSize(13);
+        subtitle.setLetterSpacing(0.1f);
         subtitle.setPadding(2, 5, 0, 22);
+
         layout.addView(subtitle);
     }
 
     private void addPreview() {
+
+        addHeading("✦  WALLPAPER PREVIEW");
+
         preview = new ImageView(this);
         preview.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
+        GradientDrawable border = new GradientDrawable();
+        border.setColor(CARD);
+        border.setCornerRadius(24);
+        border.setStroke(3, CYAN);
+
+        preview.setBackground(border);
+        preview.setClipToOutline(true);
+        preview.setFocusable(false);
 
         LinearLayout.LayoutParams params =
             new LinearLayout.LayoutParams(-1, 230);
@@ -123,16 +164,20 @@ public class WallpaperActivity extends Activity {
     }
 
     private void addHeading(String text) {
+
         TextView heading = new TextView(this);
         heading.setText(text);
         heading.setTextColor(Color.rgb(150, 170, 255));
         heading.setTextSize(17);
         heading.setTypeface(null, Typeface.BOLD);
+        heading.setLetterSpacing(0.04f);
         heading.setPadding(0, 22, 0, 12);
+
         layout.addView(heading);
     }
 
     private void addWallpaper(int index) {
+
         TextView card = new TextView(this);
 
         card.setText("✦  " + names[index] + "   ➜");
@@ -140,23 +185,27 @@ public class WallpaperActivity extends Activity {
         card.setTextSize(16);
         card.setTypeface(null, Typeface.BOLD);
         card.setGravity(Gravity.CENTER_VERTICAL);
-        card.setPadding(25, 25, 25, 25);
+        card.setPadding(25, 20, 25, 20);
         card.setFocusable(true);
         card.setClickable(true);
 
-        GradientDrawable bg = gradient(index);
-        card.setBackground(bg);
+        card.setContentDescription(
+            names[index] + " wallpaper"
+        );
+
+        updateWallpaperCard(card, index);
 
         card.setOnFocusChangeListener((v, focused) -> {
-            GradientDrawable focus = gradient(index);
-            focus.setStroke(
-                focused ? 4 : 2,
-                focused ? Color.WHITE : CYAN
-            );
-            card.setBackground(focus);
+
+            updateWallpaperCard(card, index);
+
+            if (focused) {
+                ensureVisible(card);
+            }
         });
 
         card.setOnClickListener(v -> {
+
             prefs.edit()
                 .putInt("wallpaper_index", index)
                 .remove("custom_wallpaper")
@@ -164,41 +213,113 @@ public class WallpaperActivity extends Activity {
 
             updatePreview();
 
-            Toast.makeText(this,
+            Toast.makeText(
+                this,
                 names[index] + " selected",
-                Toast.LENGTH_SHORT).show();
+                Toast.LENGTH_SHORT
+            ).show();
+
+            updateAllWallpaperCards();
         });
 
         LinearLayout.LayoutParams params =
             new LinearLayout.LayoutParams(-1, 85);
 
         params.setMargins(0, 7, 0, 7);
+
         layout.addView(card, params);
+
+        if (initialFocus == null &&
+            prefs.getInt("wallpaper_index", 0) == index &&
+            prefs.getString("custom_wallpaper", null) == null) {
+
+            initialFocus = card;
+        }
+    }
+
+    private void updateWallpaperCard(
+        TextView card,
+        int index
+    ) {
+
+        boolean selected =
+            prefs.getInt("wallpaper_index", 0) == index &&
+            prefs.getString("custom_wallpaper", null) == null;
+
+        boolean focused = card.hasFocus();
+
+        GradientDrawable bg = gradient(index);
+
+        bg.setStroke(
+            focused ? 4 : (selected ? 3 : 2),
+            focused ? Color.WHITE :
+                (selected ? CYAN : Color.rgb(65, 90, 155))
+        );
+
+        card.setBackground(bg);
+
+        card.setScaleX(focused ? 1.03f : 1f);
+        card.setScaleY(focused ? 1.03f : 1f);
+
+        card.setTextColor(
+            selected ? CYAN : Color.WHITE
+        );
+    }
+
+    private void updateAllWallpaperCards() {
+
+        for (int i = 0; i < layout.getChildCount(); i++) {
+
+            View view = layout.getChildAt(i);
+
+            if (view instanceof TextView) {
+
+                TextView text = (TextView) view;
+
+                for (int j = 0; j < names.length; j++) {
+
+                    if (text.getText().toString().contains(
+                        names[j]
+                    )) {
+                        updateWallpaperCard(text, j);
+                    }
+                }
+            }
+        }
     }
 
     private GradientDrawable gradient(int index) {
+
         GradientDrawable bg = new GradientDrawable(
             GradientDrawable.Orientation.LEFT_RIGHT,
             new int[] {
-                Color.rgb(colors[index][0],
-                          colors[index][1],
-                          colors[index][2]),
-                Color.rgb(colors[index][3],
-                          colors[index][4],
-                          colors[index][5])
+                Color.rgb(
+                    colors[index][0],
+                    colors[index][1],
+                    colors[index][2]
+                ),
+                Color.rgb(
+                    colors[index][3],
+                    colors[index][4],
+                    colors[index][5]
+                )
             }
         );
 
         bg.setCornerRadius(22);
         bg.setStroke(2, CYAN);
+
         return bg;
     }
 
-    private void addButton(
-        String text, int accent,
+    private void addActionButton(
+        String text,
+        int accent,
         View.OnClickListener listener
     ) {
+
         TextView button = new TextView(this);
+
         button.setText(text);
         button.setTextColor(Color.WHITE);
         button.setTextSize(15);
@@ -208,24 +329,28 @@ public class WallpaperActivity extends Activity {
         button.setFocusable(true);
         button.setClickable(true);
 
-        GradientDrawable bg = new GradientDrawable();
-        bg.setColor(Color.rgb(24, 31, 60));
-        bg.setCornerRadius(22);
-        bg.setStroke(2, accent);
-        button.setBackground(bg);
+        GradientDrawable normal = actionBackground(
+            CARD, accent, 2
+        );
 
-        button.setOnFocusChangeListener((v, focused) -> {
-            GradientDrawable focus = new GradientDrawable();
-            focus.setColor(
-                focused ? Color.rgb(55, 45, 115)
-                        : Color.rgb(24, 31, 60)
+        GradientDrawable focused = actionBackground(
+            Color.rgb(55, 45, 115), Color.WHITE, 4
+        );
+
+        button.setBackground(normal);
+
+        button.setOnFocusChangeListener((v, hasFocus) -> {
+
+            button.setBackground(
+                hasFocus ? focused : normal
             );
-            focus.setCornerRadius(22);
-            focus.setStroke(
-                focused ? 4 : 2,
-                focused ? Color.WHITE : accent
-            );
-            button.setBackground(focus);
+
+            button.setScaleX(hasFocus ? 1.03f : 1f);
+            button.setScaleY(hasFocus ? 1.03f : 1f);
+
+            if (hasFocus) {
+                ensureVisible(button);
+            }
         });
 
         button.setOnClickListener(listener);
@@ -234,18 +359,45 @@ public class WallpaperActivity extends Activity {
             new LinearLayout.LayoutParams(-1, -2);
 
         params.setMargins(0, 7, 0, 7);
+
         layout.addView(button, params);
+
+        if (initialFocus == null) {
+            initialFocus = button;
+        }
+    }
+
+    private GradientDrawable actionBackground(
+        int color,
+        int stroke,
+        int strokeWidth
+    ) {
+
+        GradientDrawable bg = new GradientDrawable();
+        bg.setColor(color);
+        bg.setCornerRadius(22);
+        bg.setStroke(strokeWidth, stroke);
+
+        return bg;
     }
 
     private void updatePreview() {
+
+        if (preview == null) return;
+
         String custom = prefs.getString(
             "custom_wallpaper", null
         );
 
         if (custom != null) {
+
             try {
                 preview.setImageURI(Uri.parse(custom));
-                return;
+
+                if (preview.getDrawable() != null) {
+                    return;
+                }
+
             } catch (Exception ignored) {}
         }
 
@@ -258,26 +410,58 @@ public class WallpaperActivity extends Activity {
         preview.setImageDrawable(gradient(index));
     }
 
+    private void restoreDefault() {
+
+        prefs.edit().clear().apply();
+
+        updatePreview();
+        updateAllWallpaperCards();
+
+        Toast.makeText(
+            this,
+            "Default wallpaper restored",
+            Toast.LENGTH_SHORT
+        ).show();
+    }
+
     private void openGallery() {
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+
+        Intent intent = new Intent(
+            Intent.ACTION_OPEN_DOCUMENT
+        );
+
         intent.setType("image/*");
         intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+        intent.addFlags(
+            Intent.FLAG_GRANT_READ_URI_PERMISSION
+        );
 
         try {
             startActivityForResult(intent, 100);
+
         } catch (Exception e) {
-            Toast.makeText(this,
+
+            Toast.makeText(
+                this,
                 "Gallery unavailable",
-                Toast.LENGTH_SHORT).show();
+                Toast.LENGTH_SHORT
+            ).show();
         }
     }
 
     @Override
     protected void onActivityResult(
-        int requestCode, int resultCode, Intent data
+        int requestCode,
+        int resultCode,
+        Intent data
     ) {
-        super.onActivityResult(requestCode, resultCode, data);
+
+        super.onActivityResult(
+            requestCode,
+            resultCode,
+            data
+        );
 
         if (requestCode == 100 &&
             resultCode == RESULT_OK &&
@@ -287,10 +471,13 @@ public class WallpaperActivity extends Activity {
             Uri uri = data.getData();
 
             try {
-                getContentResolver().takePersistableUriPermission(
-                    uri,
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION
-                );
+
+                int flags = data.getFlags() &
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION;
+
+                getContentResolver()
+                    .takePersistableUriPermission(uri, flags);
+
             } catch (Exception ignored) {}
 
             prefs.edit()
@@ -298,10 +485,40 @@ public class WallpaperActivity extends Activity {
                 .apply();
 
             updatePreview();
+            updateAllWallpaperCards();
 
-            Toast.makeText(this,
+            Toast.makeText(
+                this,
                 "Custom wallpaper saved!",
-                Toast.LENGTH_SHORT).show();
+                Toast.LENGTH_SHORT
+            ).show();
         }
+    }
+
+    private void ensureVisible(View view) {
+
+        if (view == null || scroll == null) return;
+
+        view.post(() -> {
+
+            android.graphics.Rect rect =
+                new android.graphics.Rect(
+                    0, 0,
+                    view.getWidth(),
+                    view.getHeight()
+                );
+
+            view.requestRectangleOnScreen(rect, true);
+        });
+    }
+
+    private void requestInitialFocus() {
+
+        scroll.post(() -> {
+
+            if (initialFocus != null) {
+                initialFocus.requestFocus();
+            }
+        });
     }
 }
