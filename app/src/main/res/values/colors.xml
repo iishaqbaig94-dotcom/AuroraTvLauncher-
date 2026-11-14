@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="aurora_black">#050817</color>
+    <color name="aurora_blue">#176BFF</color>
+    <color name="aurora_violet">#8B5CFF</color>
+    <color name="aurora_cyan">#00E5FF</color>
+    <color name="aurora_white">#FFFFFF</color>
+    <color name="aurora_card">#181F3C</color>
+    <color name="aurora_text">#B8C5E8</color>
+</resources>
