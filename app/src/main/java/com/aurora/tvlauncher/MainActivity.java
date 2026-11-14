@@ -37,12 +37,12 @@ public class MainActivity extends Activity {
     private ScrollView pageScroll;
 
     private String lastFocusedName = null;
-
     private final Set<String> addedPackages = new HashSet<>();
 
     private final int DARK = Color.rgb(5, 8, 23);
     private final int CYAN = Color.rgb(0, 220, 255);
     private final int PURPLE = Color.rgb(145, 80, 255);
+    private final int WHITE = Color.WHITE;
 
     private final int[][] wallpaperColors = {
         {5, 8, 23, 15, 55, 130},
@@ -73,9 +73,7 @@ public class MainActivity extends Activity {
         );
 
         View overlay = new View(this);
-        overlay.setBackgroundColor(
-            Color.argb(145, 3, 6, 20)
-        );
+        overlay.setBackgroundColor(Color.argb(155, 3, 6, 20));
 
         root.addView(
             overlay,
@@ -92,7 +90,7 @@ public class MainActivity extends Activity {
 
         mainLayout = new LinearLayout(this);
         mainLayout.setOrientation(LinearLayout.VERTICAL);
-        mainLayout.setPadding(40, 25, 40, 40);
+        mainLayout.setPadding(40, 25, 40, 45);
         mainLayout.setBackgroundColor(Color.TRANSPARENT);
 
         pageScroll.addView(mainLayout);
@@ -137,9 +135,7 @@ public class MainActivity extends Activity {
         addApp(
             mainLayout,
             "Continue Watching",
-            null,
-            null,
-            false
+            null, null, false
         );
 
         addSection("EXPLORE YOUR UNIVERSE");
@@ -157,34 +153,80 @@ public class MainActivity extends Activity {
         addApp(
             mainLayout,
             "AURORA INFINITY CLEANER",
-            null,
-            null,
-            false
+            null, null, false
         );
 
         addSection("SYSTEM");
 
         addApp(mainLayout, "Settings", null, null, false);
+
+        TextView footer = new TextView(this);
+        footer.setText("AURORA TV  ∞  INFINITY X");
+        footer.setTextColor(Color.rgb(120, 145, 190));
+        footer.setTextSize(11);
+        footer.setGravity(Gravity.CENTER);
+        footer.setPadding(0, 30, 0, 10);
+        mainLayout.addView(footer);
     }
 
     private void addTopBar() {
 
+        LinearLayout top = new LinearLayout(this);
+        top.setOrientation(LinearLayout.HORIZONTAL);
+        top.setGravity(Gravity.CENTER_VERTICAL);
+
+        LinearLayout brand = new LinearLayout(this);
+        brand.setOrientation(LinearLayout.VERTICAL);
+
         TextView title = new TextView(this);
         title.setText("∞  AURORA TV");
-        title.setTextSize(30);
+        title.setTextSize(29);
         title.setTypeface(null, Typeface.BOLD);
         title.setTextColor(CYAN);
-        mainLayout.addView(title);
+        brand.addView(title);
 
         TextView subtitle = new TextView(this);
-        subtitle.setText(
-            "INFINITY X  •  THE FUTURE OF ENTERTAINMENT"
-        );
+        subtitle.setText("INFINITY X  •  THE FUTURE OF ENTERTAINMENT");
         subtitle.setTextColor(Color.LTGRAY);
-        subtitle.setTextSize(12);
+        subtitle.setTextSize(10);
         subtitle.setLetterSpacing(0.08f);
-        subtitle.setPadding(2, 6, 0, 20);
-        mainLayout.addView(subtitle);
+        subtitle.setPadding(2, 5, 0, 0);
+        brand.addView(subtitle);
+
+        top.addView(
+            brand,
+            new LinearLayout.LayoutParams(0, -2, 1)
+        );
+
+        TextView status = new TextView(this);
+        status.setText("● SYSTEM ONLINE");
+        status.setTextColor(CYAN);
+        status.setTextSize(11);
+        status.setTypeface(null, Typeface.BOLD);
+        status.setGravity(Gravity.CENTER);
+        status.setPadding(15, 11, 15, 11);
+
+        GradientDrawable statusBg = new GradientDrawable();
+        statusBg.setColor(Color.rgb(12, 35, 58));
+        statusBg.setCornerRadius(30);
+        statusBg.setStroke(1, CYAN);
+        status.setBackground(statusBg);
+
+        top.addView(status);
+
+        mainLayout.addView(
+            top,
+            new LinearLayout.LayoutParams(-1, -2)
+        );
+
+        View line = new View(this);
+        line.setBackgroundColor(Color.argb(100, 0, 200, 255));
+
+        LinearLayout.LayoutParams lineParams =
+            new LinearLayout.LayoutParams(-1, 1);
+
+        lineParams.setMargins(0, 18, 0, 10);
+        mainLayout.addView(line, lineParams);
     }
 
     private void addHero() {
@@ -197,28 +239,30 @@ public class MainActivity extends Activity {
         GradientDrawable bg = new GradientDrawable(
             GradientDrawable.Orientation.TL_BR,
             new int[] {
-                Color.rgb(8, 35, 90),
-                Color.rgb(35, 25, 100),
-                Color.rgb(90, 25, 135)
+                Color.rgb(5, 35, 90),
+                Color.rgb(35, 25, 105),
+                Color.rgb(95, 25, 145)
             }
         );
 
         bg.setCornerRadius(28);
         bg.setStroke(2, CYAN);
         hero.setBackground(bg);
+        hero.setElevation(8);
 
         TextView small = new TextView(this);
-        small.setText("WELCOME TO YOUR UNIVERSE");
+        small.setText("WELCOME TO YOUR UNIVERSE  ✦");
         small.setTextColor(CYAN);
         small.setTextSize(12);
+        small.setTypeface(null, Typeface.BOLD);
         hero.addView(small);
 
         TextView heading = new TextView(this);
         heading.setText("AURORA TV ∞");
-        heading.setTextColor(Color.WHITE);
-        heading.setTextSize(31);
+        heading.setTextColor(WHITE);
+        heading.setTextSize(34);
         heading.setTypeface(null, Typeface.BOLD);
-        heading.setPadding(0, 12, 0, 5);
+        heading.setPadding(0, 10, 0, 5);
         hero.addView(heading);
 
         TextView description = new TextView(this);
@@ -229,19 +273,84 @@ public class MainActivity extends Activity {
         description.setTextSize(15);
         hero.addView(description);
 
-        LinearLayout.LayoutParams params =
-            new LinearLayout.LayoutParams(-1, 230);
+        LinearLayout actions = new LinearLayout(this);
+        actions.setOrientation(LinearLayout.HORIZONTAL);
+        actions.setGravity(Gravity.CENTER_VERTICAL);
+        actions.setPadding(0, 18, 0, 0);
 
-        params.setMargins(0, 10, 0, 20);
+        addActionButton(
+            actions, "EXPLORE MOVIES",
+            () -> openMovieHub("MOVIES")
+        );
+
+        addActionButton(
+            actions, "PICTURE STUDIO",
+            () -> startActivity(
+                new Intent(this, PictureStudioActivity.class)
+            )
+        );
+
+        hero.addView(actions);
+
+        LinearLayout.LayoutParams params =
+            new LinearLayout.LayoutParams(-1, 250);
+
+        params.setMargins(0, 12, 0, 20);
         mainLayout.addView(hero, params);
+    }
+
+    private void addActionButton(
+        LinearLayout parent,
+        String label,
+        Runnable action
+    ) {
+
+        TextView button = new TextView(this);
+        button.setText(label + "  ›");
+        button.setTextColor(WHITE);
+        button.setTextSize(12);
+        button.setTypeface(null, Typeface.BOLD);
+        button.setGravity(Gravity.CENTER);
+        button.setFocusable(true);
+        button.setClickable(true);
+        button.setPadding(15, 13, 15, 13);
+
+        GradientDrawable normal = new GradientDrawable();
+        normal.setColor(Color.rgb(15, 45, 90));
+        normal.setCornerRadius(15);
+        normal.setStroke(1, CYAN);
+
+        GradientDrawable focused = new GradientDrawable();
+        focused.setColor(Color.rgb(65, 45, 135));
+        focused.setCornerRadius(15);
+        focused.setStroke(3, WHITE);
+
+        button.setBackground(normal);
+
+        button.setOnFocusChangeListener((v, hasFocus) -> {
+            button.setBackground(hasFocus ? focused : normal);
+            button.animate()
+                .scaleX(hasFocus ? 1.06f : 1f)
+                .scaleY(hasFocus ? 1.06f : 1f)
+                .setDuration(130)
+                .start();
+        });
+
+        button.setOnClickListener(v -> action.run());
+
+        LinearLayout.LayoutParams p =
+            new LinearLayout.LayoutParams(-2, 52);
+
+        p.setMargins(0, 0, 12, 0);
+        parent.addView(button, p);
     }
 
     private void addSection(String name) {
 
         TextView section = new TextView(this);
         section.setText(name);
-        section.setTextSize(18);
-        section.setTextColor(Color.rgb(145, 175, 255));
+        section.setTextSize(17);
+        section.setTextColor(Color.rgb(145, 190, 255));
         section.setTypeface(null, Typeface.BOLD);
         section.setLetterSpacing(0.06f);
         section.setPadding(0, 22, 0, 12);
@@ -382,7 +491,7 @@ public class MainActivity extends Activity {
 
         app.setText(name + "   ›");
         app.setTextSize(17);
-        app.setTextColor(Color.WHITE);
+        app.setTextColor(WHITE);
         app.setGravity(Gravity.CENTER);
         app.setTypeface(null, Typeface.BOLD);
         app.setFocusable(true);
@@ -406,9 +515,9 @@ public class MainActivity extends Activity {
         }
 
         GradientDrawable normal = new GradientDrawable();
-        normal.setColor(Color.rgb(20, 28, 58));
+        normal.setColor(Color.rgb(15, 25, 55));
         normal.setCornerRadius(20);
-        normal.setStroke(2, Color.rgb(45, 95, 180));
+        normal.setStroke(2, Color.rgb(40, 90, 170));
 
         GradientDrawable focused = new GradientDrawable();
         focused.setColor(Color.rgb(48, 38, 105));
@@ -416,6 +525,7 @@ public class MainActivity extends Activity {
         focused.setStroke(3, CYAN);
 
         app.setBackground(normal);
+        app.setElevation(3);
 
         app.setOnFocusChangeListener((view, hasFocus) -> {
 
@@ -599,24 +709,4 @@ public class MainActivity extends Activity {
             MovieHubActivity.class
         );
 
-        intent.putExtra("hub_mode", mode);
-        startActivity(intent);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        if (wallpaperBackground != null) {
-            addWallpaperBackground();
-        }
-
-        if (appRow != null) {
-            appRow.removeAllViews();
-            addedPackages.clear();
-
-            loadInstalledApps();
-            restoreRemoteFocus();
-        }
-    }
-             }
+        intent.putExtra("hu
