@@ -24,6 +24,7 @@ import android.widget.TextView;
 import android.widget.SeekBar;
 import android.widget.ImageView;
 import android.widget.Toast;
+import android.graphics.Rect;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
