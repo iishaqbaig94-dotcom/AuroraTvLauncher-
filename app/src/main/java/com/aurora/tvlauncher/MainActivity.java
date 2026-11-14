@@ -7,12 +7,14 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -32,6 +34,9 @@ public class MainActivity extends Activity {
     private LinearLayout mainLayout;
     private LinearLayout appRow;
     private ImageView wallpaperBackground;
+    private ScrollView pageScroll;
+
+    private String lastFocusedName = null;
 
     private final Set<String> addedPackages = new HashSet<>();
 
@@ -62,21 +67,28 @@ public class MainActivity extends Activity {
             ImageView.ScaleType.CENTER_CROP
         );
 
-        root.addView(wallpaperBackground,
-            new FrameLayout.LayoutParams(-1, -1));
+        root.addView(
+            wallpaperBackground,
+            new FrameLayout.LayoutParams(-1, -1)
+        );
 
         View overlay = new View(this);
         overlay.setBackgroundColor(
             Color.argb(145, 3, 6, 20)
         );
 
-        root.addView(overlay,
-            new FrameLayout.LayoutParams(-1, -1));
+        root.addView(
+            overlay,
+            new FrameLayout.LayoutParams(-1, -1)
+        );
 
-        ScrollView pageScroll = new ScrollView(this);
+        pageScroll = new ScrollView(this);
         pageScroll.setFillViewport(true);
         pageScroll.setBackgroundColor(Color.TRANSPARENT);
         pageScroll.setFocusable(false);
+        pageScroll.setDescendantFocusability(
+            ViewGroup.FOCUS_AFTER_DESCENDANTS
+        );
 
         mainLayout = new LinearLayout(this);
         mainLayout.setOrientation(LinearLayout.VERTICAL);
@@ -85,20 +97,16 @@ public class MainActivity extends Activity {
 
         pageScroll.addView(mainLayout);
 
-        root.addView(pageScroll,
-            new FrameLayout.LayoutParams(-1, -1));
+        root.addView(
+            pageScroll,
+            new FrameLayout.LayoutParams(-1, -1)
+        );
+
+        setContentView(root);
 
         addWallpaperBackground();
         buildHomeScreen();
 
-        setContentView(root);
-
-        // Initial remote focus
-        appRow.post(() -> {
-            if (appRow.getChildCount() > 0) {
-                appRow.getChildAt(0).requestFocus();
-            }
-        });
     }
 
     private void buildHomeScreen() {
@@ -113,6 +121,9 @@ public class MainActivity extends Activity {
 
         appScroll.setHorizontalScrollBarEnabled(false);
         appScroll.setFocusable(false);
+        appScroll.setDescendantFocusability(
+            ViewGroup.FOCUS_AFTER_DESCENDANTS
+        );
 
         appRow = new LinearLayout(this);
         appRow.setOrientation(LinearLayout.HORIZONTAL);
@@ -124,29 +135,59 @@ public class MainActivity extends Activity {
 
         addSection("CONTINUE WATCHING");
 
-        addApp(mainLayout,
-            "Continue Watching", null, null, false);
+        addApp(
+            mainLayout,
+            "Continue Watching",
+            null,
+            null,
+            false
+        );
 
         addSection("EXPLORE YOUR UNIVERSE");
 
-        addApp(mainLayout,
-            "Movies", null, null, false);
+        addApp(
+            mainLayout,
+            "Movies",
+            null,
+            null,
+            false
+        );
 
-        addApp(mainLayout,
-            "TV Shows", null, null, false);
+        addApp(
+            mainLayout,
+            "TV Shows",
+            null,
+            null,
+            false
+        );
 
         addSection("PERSONALISE YOUR EXPERIENCE");
 
-        addApp(mainLayout,
-            "Picture Studio", null, null, false);
+        addApp(
+            mainLayout,
+            "Picture Studio",
+            null,
+            null,
+            false
+        );
 
-        addApp(mainLayout,
-            "Wallpaper Studio", null, null, false);
+        addApp(
+            mainLayout,
+            "Wallpaper Studio",
+            null,
+            null,
+            false
+        );
 
         addSection("SYSTEM");
 
-        addApp(mainLayout,
-            "Settings", null, null, false);
+        addApp(
+            mainLayout,
+            "Settings",
+            null,
+            null,
+            false
+        );
     }
 
     private void addTopBar() {
@@ -241,11 +282,13 @@ public class MainActivity extends Activity {
 
         android.content.SharedPreferences prefs =
             getSharedPreferences(
-                "AuroraWallpaper", MODE_PRIVATE
+                "AuroraWallpaper",
+                MODE_PRIVATE
             );
 
         String custom = prefs.getString(
-            "custom_wallpaper", null
+            "custom_wallpaper",
+            null
         );
 
         if (custom != null) {
@@ -257,6 +300,7 @@ public class MainActivity extends Activity {
                 if (wallpaperBackground.getDrawable() != null) {
                     return;
                 }
+
             } catch (Exception ignored) {
             }
         }
@@ -338,14 +382,22 @@ public class MainActivity extends Activity {
             count++;
         }
 
-        addApp(appRow, "Settings", null, null, true);
+        addApp(
+            appRow,
+            "Settings",
+            null,
+            null,
+            true
+        );
 
         if (count == 0) {
+
             TextView empty = new TextView(this);
             empty.setText("No installed apps found");
             empty.setTextColor(Color.LTGRAY);
             empty.setTextSize(16);
             empty.setPadding(10, 20, 10, 20);
+
             appRow.addView(empty);
         }
     }
@@ -355,11 +407,14 @@ public class MainActivity extends Activity {
         PackageManager pm = getPackageManager();
 
         if (android.os.Build.VERSION.SDK_INT >= 33) {
+
             return pm.queryIntentActivities(
                 intent,
                 PackageManager.ResolveInfoFlags.of(0)
             );
+
         } else {
+
             return pm.queryIntentActivities(intent, 0);
         }
     }
@@ -395,15 +450,24 @@ public class MainActivity extends Activity {
         app.setClickable(true);
         app.setPadding(16, 18, 16, 18);
 
+        app.setImportantForAccessibility(
+            View.IMPORTANT_FOR_ACCESSIBILITY_YES
+        );
+
         if (packageName != null) {
+
             try {
+
                 Drawable icon = getPackageManager()
                     .getApplicationIcon(packageName);
 
                 icon.setBounds(0, 0, 52, 52);
 
                 app.setCompoundDrawables(
-                    null, icon, null, null
+                    null,
+                    icon,
+                    null,
+                    null
                 );
 
                 app.setCompoundDrawablePadding(12);
@@ -425,12 +489,36 @@ public class MainActivity extends Activity {
         app.setBackground(normal);
 
         app.setOnFocusChangeListener((view, hasFocus) -> {
+
             app.setBackground(
                 hasFocus ? focused : normal
             );
 
-            app.setScaleX(hasFocus ? 1.04f : 1.0f);
-            app.setScaleY(hasFocus ? 1.04f : 1.0f);
+            app.animate()
+                .scaleX(hasFocus ? 1.05f : 1.0f)
+                .scaleY(hasFocus ? 1.05f : 1.0f)
+                .setDuration(130)
+                .start();
+
+            if (hasFocus) {
+
+                lastFocusedName = name;
+
+                app.post(() -> {
+
+                    Rect rect = new Rect(
+                        0,
+                        0,
+                        app.getWidth(),
+                        app.getHeight()
+                    );
+
+                    app.requestRectangleOnScreen(
+                        rect,
+                        true
+                    );
+                });
+            }
         });
 
         app.setOnClickListener(view ->
@@ -440,13 +528,99 @@ public class MainActivity extends Activity {
         LinearLayout.LayoutParams params;
 
         if (horizontal) {
-            params = new LinearLayout.LayoutParams(190, 135);
+            params = new LinearLayout.LayoutParams(
+                190,
+                135
+            );
         } else {
-            params = new LinearLayout.LayoutParams(-1, 75);
+            params = new LinearLayout.LayoutParams(
+                -1,
+                75
+            );
         }
 
         params.setMargins(5, 6, 12, 8);
+
         parent.addView(app, params);
+    }
+
+    private View findFocusableByName(
+        ViewGroup parent,
+        String name
+    ) {
+
+        if (name == null) {
+            return null;
+        }
+
+        String target = name + "   ›";
+
+        for (int i = 0; i < parent.getChildCount(); i++) {
+
+            View child = parent.getChildAt(i);
+
+            if (child instanceof TextView) {
+
+                TextView textView = (TextView) child;
+
+                if (target.equals(
+                    textView.getText().toString()
+                )) {
+                    return child;
+                }
+            }
+
+            if (child instanceof ViewGroup) {
+
+                View result = findFocusableByName(
+                    (ViewGroup) child,
+                    name
+                );
+
+                if (result != null) {
+                    return result;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private void restoreRemoteFocus() {
+
+        if (mainLayout == null) {
+            return;
+        }
+
+        mainLayout.post(() -> {
+
+            View target = findFocusableByName(
+                mainLayout,
+                lastFocusedName
+            );
+
+            if (target == null && appRow != null &&
+                appRow.getChildCount() > 0) {
+
+                target = appRow.getChildAt(0);
+            }
+
+            if (target != null) {
+                target.requestFocus();
+
+                Rect rect = new Rect(
+                    0,
+                    0,
+                    target.getWidth(),
+                    target.getHeight()
+                );
+
+                target.requestRectangleOnScreen(
+                    rect,
+                    true
+                );
+            }
+        });
     }
 
     private void openApp(
@@ -456,18 +630,22 @@ public class MainActivity extends Activity {
     ) {
 
         if ("Picture Studio".equals(name)) {
+
             startActivity(new Intent(
                 MainActivity.this,
                 PictureStudioActivity.class
             ));
+
             return;
         }
 
         if ("Wallpaper Studio".equals(name)) {
+
             startActivity(new Intent(
                 MainActivity.this,
                 WallpaperActivity.class
             ));
+
             return;
         }
 
@@ -487,26 +665,36 @@ public class MainActivity extends Activity {
         }
 
         if ("Settings".equals(name)) {
+
             try {
+
                 startActivity(new Intent(
                     android.provider.Settings.ACTION_SETTINGS
                 ));
+
             } catch (Exception e) {
+
                 Toast.makeText(
                     this,
                     "Settings unavailable",
                     Toast.LENGTH_SHORT
                 ).show();
             }
+
             return;
         }
 
         if (packageName != null && activityName != null) {
+
             try {
-                Intent launch = new Intent(Intent.ACTION_MAIN);
+
+                Intent launch = new Intent(
+                    Intent.ACTION_MAIN
+                );
 
                 launch.setClassName(
-                    packageName, activityName
+                    packageName,
+                    activityName
                 );
 
                 launch.addFlags(
@@ -516,6 +704,7 @@ public class MainActivity extends Activity {
                 startActivity(launch);
 
             } catch (Exception e) {
+
                 Toast.makeText(
                     this,
                     "Unable to open " + name,
@@ -533,6 +722,7 @@ public class MainActivity extends Activity {
         );
 
         intent.putExtra("hub_mode", mode);
+
         startActivity(intent);
     }
 
@@ -545,9 +735,13 @@ public class MainActivity extends Activity {
         }
 
         if (appRow != null) {
+
             appRow.removeAllViews();
             addedPackages.clear();
+
             loadInstalledApps();
+
+            restoreRemoteFocus();
         }
     }
-            }
+}
