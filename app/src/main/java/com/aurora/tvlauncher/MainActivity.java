@@ -37,6 +37,7 @@ public class MainActivity extends Activity {
     private ScrollView pageScroll;
 
     private String lastFocusedName = null;
+
     private final Set<String> addedPackages = new HashSet<>();
 
     private final int DARK = Color.rgb(5, 8, 23);
@@ -73,7 +74,9 @@ public class MainActivity extends Activity {
         );
 
         View overlay = new View(this);
-        overlay.setBackgroundColor(Color.argb(155, 3, 6, 20));
+        overlay.setBackgroundColor(
+            Color.argb(155, 3, 6, 20)
+        );
 
         root.addView(
             overlay,
@@ -135,7 +138,9 @@ public class MainActivity extends Activity {
         addApp(
             mainLayout,
             "Continue Watching",
-            null, null, false
+            null,
+            null,
+            false
         );
 
         addSection("EXPLORE YOUR UNIVERSE");
@@ -153,7 +158,9 @@ public class MainActivity extends Activity {
         addApp(
             mainLayout,
             "AURORA INFINITY CLEANER",
-            null, null, false
+            null,
+            null,
+            false
         );
 
         addSection("SYSTEM");
@@ -186,7 +193,9 @@ public class MainActivity extends Activity {
         brand.addView(title);
 
         TextView subtitle = new TextView(this);
-        subtitle.setText("INFINITY X  •  THE FUTURE OF ENTERTAINMENT");
+        subtitle.setText(
+            "INFINITY X  •  THE FUTURE OF ENTERTAINMENT"
+        );
         subtitle.setTextColor(Color.LTGRAY);
         subtitle.setTextSize(10);
         subtitle.setLetterSpacing(0.08f);
@@ -279,12 +288,14 @@ public class MainActivity extends Activity {
         actions.setPadding(0, 18, 0, 0);
 
         addActionButton(
-            actions, "EXPLORE MOVIES",
+            actions,
+            "EXPLORE MOVIES",
             () -> openMovieHub("MOVIES")
         );
 
         addActionButton(
-            actions, "PICTURE STUDIO",
+            actions,
+            "PICTURE STUDIO",
             () -> startActivity(
                 new Intent(this, PictureStudioActivity.class)
             )
@@ -329,6 +340,7 @@ public class MainActivity extends Activity {
 
         button.setOnFocusChangeListener((v, hasFocus) -> {
             button.setBackground(hasFocus ? focused : normal);
+
             button.animate()
                 .scaleX(hasFocus ? 1.06f : 1f)
                 .scaleY(hasFocus ? 1.06f : 1f)
@@ -544,6 +556,7 @@ public class MainActivity extends Activity {
                     Rect rect = new Rect(
                         0, 0, app.getWidth(), app.getHeight()
                     );
+
                     app.requestRectangleOnScreen(rect, true);
                 });
             }
@@ -677,7 +690,8 @@ public class MainActivity extends Activity {
                 ));
             } catch (Exception e) {
                 Toast.makeText(
-                    this, "Settings unavailable",
+                    this,
+                    "Settings unavailable",
                     Toast.LENGTH_SHORT
                 ).show();
             }
@@ -695,7 +709,8 @@ public class MainActivity extends Activity {
 
             } catch (Exception e) {
                 Toast.makeText(
-                    this, "Unable to open " + name,
+                    this,
+                    "Unable to open " + name,
                     Toast.LENGTH_SHORT
                 ).show();
             }
@@ -709,4 +724,24 @@ public class MainActivity extends Activity {
             MovieHubActivity.class
         );
 
-        intent.putExtra("hu
+        intent.putExtra("hub_mode", mode);
+        startActivity(intent);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (wallpaperBackground != null) {
+            addWallpaperBackground();
+        }
+
+        if (appRow != null) {
+            appRow.removeAllViews();
+            addedPackages.clear();
+
+            loadInstalledApps();
+            restoreRemoteFocus();
+        }
+    }
+}
