@@ -106,7 +106,6 @@ public class MainActivity extends Activity {
 
         addWallpaperBackground();
         buildHomeScreen();
-
     }
 
     private void buildHomeScreen() {
@@ -145,35 +144,19 @@ public class MainActivity extends Activity {
 
         addSection("EXPLORE YOUR UNIVERSE");
 
-        addApp(
-            mainLayout,
-            "Movies",
-            null,
-            null,
-            false
-        );
-
-        addApp(
-            mainLayout,
-            "TV Shows",
-            null,
-            null,
-            false
-        );
+        addApp(mainLayout, "Movies", null, null, false);
+        addApp(mainLayout, "TV Shows", null, null, false);
 
         addSection("PERSONALISE YOUR EXPERIENCE");
 
-        addApp(
-            mainLayout,
-            "Picture Studio",
-            null,
-            null,
-            false
-        );
+        addApp(mainLayout, "Picture Studio", null, null, false);
+        addApp(mainLayout, "Wallpaper Studio", null, null, false);
+
+        addSection("DEVICE CARE");
 
         addApp(
             mainLayout,
-            "Wallpaper Studio",
+            "AURORA INFINITY CLEANER",
             null,
             null,
             false
@@ -181,13 +164,7 @@ public class MainActivity extends Activity {
 
         addSection("SYSTEM");
 
-        addApp(
-            mainLayout,
-            "Settings",
-            null,
-            null,
-            false
-        );
+        addApp(mainLayout, "Settings", null, null, false);
     }
 
     private void addTopBar() {
@@ -197,19 +174,16 @@ public class MainActivity extends Activity {
         title.setTextSize(30);
         title.setTypeface(null, Typeface.BOLD);
         title.setTextColor(CYAN);
-
         mainLayout.addView(title);
 
         TextView subtitle = new TextView(this);
         subtitle.setText(
             "INFINITY X  •  THE FUTURE OF ENTERTAINMENT"
         );
-
         subtitle.setTextColor(Color.LTGRAY);
         subtitle.setTextSize(12);
         subtitle.setLetterSpacing(0.08f);
         subtitle.setPadding(2, 6, 0, 20);
-
         mainLayout.addView(subtitle);
     }
 
@@ -267,10 +241,7 @@ public class MainActivity extends Activity {
         TextView section = new TextView(this);
         section.setText(name);
         section.setTextSize(18);
-        section.setTextColor(
-            Color.rgb(145, 175, 255)
-        );
-
+        section.setTextColor(Color.rgb(145, 175, 255));
         section.setTypeface(null, Typeface.BOLD);
         section.setLetterSpacing(0.06f);
         section.setPadding(0, 22, 0, 12);
@@ -281,26 +252,17 @@ public class MainActivity extends Activity {
     private void addWallpaperBackground() {
 
         android.content.SharedPreferences prefs =
-            getSharedPreferences(
-                "AuroraWallpaper",
-                MODE_PRIVATE
-            );
+            getSharedPreferences("AuroraWallpaper", MODE_PRIVATE);
 
-        String custom = prefs.getString(
-            "custom_wallpaper",
-            null
-        );
+        String custom = prefs.getString("custom_wallpaper", null);
 
         if (custom != null) {
             try {
-                wallpaperBackground.setImageURI(
-                    Uri.parse(custom)
-                );
+                wallpaperBackground.setImageURI(Uri.parse(custom));
 
                 if (wallpaperBackground.getDrawable() != null) {
                     return;
                 }
-
             } catch (Exception ignored) {
             }
         }
@@ -328,40 +290,29 @@ public class MainActivity extends Activity {
 
         List<ResolveInfo> apps = new ArrayList<>();
 
-        Intent leanbackIntent =
-            new Intent(Intent.ACTION_MAIN);
-
+        Intent leanbackIntent = new Intent(Intent.ACTION_MAIN);
         leanbackIntent.addCategory(
             "android.intent.category.LEANBACK_LAUNCHER"
         );
 
         apps.addAll(queryApps(leanbackIntent));
 
-        Intent normalIntent =
-            new Intent(Intent.ACTION_MAIN);
-
-        normalIntent.addCategory(
-            Intent.CATEGORY_LAUNCHER
-        );
+        Intent normalIntent = new Intent(Intent.ACTION_MAIN);
+        normalIntent.addCategory(Intent.CATEGORY_LAUNCHER);
 
         apps.addAll(queryApps(normalIntent));
 
         Collections.sort(apps, (a, b) ->
-            getAppName(a).compareToIgnoreCase(
-                getAppName(b)
-            )
+            getAppName(a).compareToIgnoreCase(getAppName(b))
         );
 
         int count = 0;
 
         for (ResolveInfo info : apps) {
 
-            if (info.activityInfo == null) {
-                continue;
-            }
+            if (info.activityInfo == null) continue;
 
-            String packageName =
-                info.activityInfo.packageName;
+            String packageName = info.activityInfo.packageName;
 
             if (packageName == null ||
                 packageName.equals(getPackageName()) ||
@@ -382,22 +333,14 @@ public class MainActivity extends Activity {
             count++;
         }
 
-        addApp(
-            appRow,
-            "Settings",
-            null,
-            null,
-            true
-        );
+        addApp(appRow, "Settings", null, null, true);
 
         if (count == 0) {
-
             TextView empty = new TextView(this);
             empty.setText("No installed apps found");
             empty.setTextColor(Color.LTGRAY);
             empty.setTextSize(16);
             empty.setPadding(10, 20, 10, 20);
-
             appRow.addView(empty);
         }
     }
@@ -407,22 +350,18 @@ public class MainActivity extends Activity {
         PackageManager pm = getPackageManager();
 
         if (android.os.Build.VERSION.SDK_INT >= 33) {
-
             return pm.queryIntentActivities(
                 intent,
                 PackageManager.ResolveInfoFlags.of(0)
             );
-
         } else {
-
             return pm.queryIntentActivities(intent, 0);
         }
     }
 
     private String getAppName(ResolveInfo info) {
 
-        CharSequence label =
-            info.loadLabel(getPackageManager());
+        CharSequence label = info.loadLabel(getPackageManager());
 
         if (label == null) {
             return info.activityInfo.packageName;
@@ -455,23 +394,13 @@ public class MainActivity extends Activity {
         );
 
         if (packageName != null) {
-
             try {
-
                 Drawable icon = getPackageManager()
                     .getApplicationIcon(packageName);
 
                 icon.setBounds(0, 0, 52, 52);
-
-                app.setCompoundDrawables(
-                    null,
-                    icon,
-                    null,
-                    null
-                );
-
+                app.setCompoundDrawables(null, icon, null, null);
                 app.setCompoundDrawablePadding(12);
-
             } catch (Exception ignored) {
             }
         }
@@ -490,9 +419,7 @@ public class MainActivity extends Activity {
 
         app.setOnFocusChangeListener((view, hasFocus) -> {
 
-            app.setBackground(
-                hasFocus ? focused : normal
-            );
+            app.setBackground(hasFocus ? focused : normal);
 
             app.animate()
                 .scaleX(hasFocus ? 1.05f : 1.0f)
@@ -501,22 +428,13 @@ public class MainActivity extends Activity {
                 .start();
 
             if (hasFocus) {
-
                 lastFocusedName = name;
 
                 app.post(() -> {
-
                     Rect rect = new Rect(
-                        0,
-                        0,
-                        app.getWidth(),
-                        app.getHeight()
+                        0, 0, app.getWidth(), app.getHeight()
                     );
-
-                    app.requestRectangleOnScreen(
-                        rect,
-                        true
-                    );
+                    app.requestRectangleOnScreen(rect, true);
                 });
             }
         });
@@ -528,19 +446,12 @@ public class MainActivity extends Activity {
         LinearLayout.LayoutParams params;
 
         if (horizontal) {
-            params = new LinearLayout.LayoutParams(
-                190,
-                135
-            );
+            params = new LinearLayout.LayoutParams(190, 135);
         } else {
-            params = new LinearLayout.LayoutParams(
-                -1,
-                75
-            );
+            params = new LinearLayout.LayoutParams(-1, 75);
         }
 
         params.setMargins(5, 6, 12, 8);
-
         parent.addView(app, params);
     }
 
@@ -549,9 +460,7 @@ public class MainActivity extends Activity {
         String name
     ) {
 
-        if (name == null) {
-            return null;
-        }
+        if (name == null) return null;
 
         String target = name + "   ›";
 
@@ -560,26 +469,19 @@ public class MainActivity extends Activity {
             View child = parent.getChildAt(i);
 
             if (child instanceof TextView) {
-
                 TextView textView = (TextView) child;
 
-                if (target.equals(
-                    textView.getText().toString()
-                )) {
+                if (target.equals(textView.getText().toString())) {
                     return child;
                 }
             }
 
             if (child instanceof ViewGroup) {
-
                 View result = findFocusableByName(
-                    (ViewGroup) child,
-                    name
+                    (ViewGroup) child, name
                 );
 
-                if (result != null) {
-                    return result;
-                }
+                if (result != null) return result;
             }
         }
 
@@ -588,20 +490,16 @@ public class MainActivity extends Activity {
 
     private void restoreRemoteFocus() {
 
-        if (mainLayout == null) {
-            return;
-        }
+        if (mainLayout == null) return;
 
         mainLayout.post(() -> {
 
             View target = findFocusableByName(
-                mainLayout,
-                lastFocusedName
+                mainLayout, lastFocusedName
             );
 
             if (target == null && appRow != null &&
                 appRow.getChildCount() > 0) {
-
                 target = appRow.getChildAt(0);
             }
 
@@ -609,16 +507,10 @@ public class MainActivity extends Activity {
                 target.requestFocus();
 
                 Rect rect = new Rect(
-                    0,
-                    0,
-                    target.getWidth(),
-                    target.getHeight()
+                    0, 0, target.getWidth(), target.getHeight()
                 );
 
-                target.requestRectangleOnScreen(
-                    rect,
-                    true
-                );
+                target.requestRectangleOnScreen(rect, true);
             }
         });
     }
@@ -629,23 +521,27 @@ public class MainActivity extends Activity {
         String activityName
     ) {
 
-        if ("Picture Studio".equals(name)) {
+        if ("AURORA INFINITY CLEANER".equals(name)) {
+            startActivity(new Intent(
+                MainActivity.this,
+                CleanerActivity.class
+            ));
+            return;
+        }
 
+        if ("Picture Studio".equals(name)) {
             startActivity(new Intent(
                 MainActivity.this,
                 PictureStudioActivity.class
             ));
-
             return;
         }
 
         if ("Wallpaper Studio".equals(name)) {
-
             startActivity(new Intent(
                 MainActivity.this,
                 WallpaperActivity.class
             ));
-
             return;
         }
 
@@ -665,49 +561,31 @@ public class MainActivity extends Activity {
         }
 
         if ("Settings".equals(name)) {
-
             try {
-
                 startActivity(new Intent(
                     android.provider.Settings.ACTION_SETTINGS
                 ));
-
             } catch (Exception e) {
-
                 Toast.makeText(
-                    this,
-                    "Settings unavailable",
+                    this, "Settings unavailable",
                     Toast.LENGTH_SHORT
                 ).show();
             }
-
             return;
         }
 
         if (packageName != null && activityName != null) {
-
             try {
+                Intent launch = new Intent(Intent.ACTION_MAIN);
 
-                Intent launch = new Intent(
-                    Intent.ACTION_MAIN
-                );
-
-                launch.setClassName(
-                    packageName,
-                    activityName
-                );
-
-                launch.addFlags(
-                    Intent.FLAG_ACTIVITY_NEW_TASK
-                );
+                launch.setClassName(packageName, activityName);
+                launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
                 startActivity(launch);
 
             } catch (Exception e) {
-
                 Toast.makeText(
-                    this,
-                    "Unable to open " + name,
+                    this, "Unable to open " + name,
                     Toast.LENGTH_SHORT
                 ).show();
             }
@@ -722,7 +600,6 @@ public class MainActivity extends Activity {
         );
 
         intent.putExtra("hub_mode", mode);
-
         startActivity(intent);
     }
 
@@ -735,13 +612,11 @@ public class MainActivity extends Activity {
         }
 
         if (appRow != null) {
-
             appRow.removeAllViews();
             addedPackages.clear();
 
             loadInstalledApps();
-
             restoreRemoteFocus();
         }
     }
-}
+             }
