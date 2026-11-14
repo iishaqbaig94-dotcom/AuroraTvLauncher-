@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AURORA TV</string>
+    <string name="launcher_subtitle">THE FUTURE OF ENTERTAINMENT</string>
+    <string name="app_infinity">INFINITY X</string>
+    <string name="section_apps">YOUR APPS</string>
+    <string name="section_personalize">PERSONALIZE</string>
+    <string name="picture_studio">Picture Studio</string>
+    <string name="settings">Settings</string>
+</resources>
