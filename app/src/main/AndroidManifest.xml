@@ -26,6 +26,9 @@
             </intent-filter>
 
         </activity>
-
+       <activity
+    android:name=".PictureStudioActivity"
+    android:exported="false"
+    android:screenOrientation="landscape" />
     </application>
 </manifest>
