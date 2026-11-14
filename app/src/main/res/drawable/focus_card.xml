@@ -1,24 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Remote focused state -->
     <item android:state_focused="true">
         <shape android:shape="rectangle">
-            <solid android:color="#25245A"/>
+            <gradient
+                android:angle="135"
+                android:startColor="#303D82"
+                android:centerColor="#28265F"
+                android:endColor="#482477" />
+
             <stroke
                 android:width="3dp"
-                android:color="#8B5CFF"/>
-            <corners android:radius="16dp"/>
+                android:color="#24C8FF" />
+
+            <corners android:radius="20dp" />
+
+            <padding
+                android:left="4dp"
+                android:top="4dp"
+                android:right="4dp"
+                android:bottom="4dp" />
         </shape>
     </item>
 
+    <!-- Pressed state -->
+    <item android:state_pressed="true">
+        <shape android:shape="rectangle">
+            <solid android:color="#35276B" />
+            <stroke
+                android:width="2dp"
+                android:color="#A56BFF" />
+            <corners android:radius="20dp" />
+        </shape>
+    </item>
+
+    <!-- Normal state -->
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="#181F3C"/>
+            <gradient
+                android:angle="135"
+                android:startColor="#182746"
+                android:centerColor="#151D38"
+                android:endColor="#25183F" />
+
             <stroke
                 android:width="1dp"
-                android:color="#315BCE"/>
-            <corners android:radius="16dp"/>
+                android:color="#405DAD" />
+
+            <corners android:radius="20dp" />
         </shape>
     </item>
 
 </selector>
+
