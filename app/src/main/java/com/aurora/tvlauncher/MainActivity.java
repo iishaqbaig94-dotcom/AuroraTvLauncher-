@@ -57,7 +57,6 @@ public class MainActivity extends Activity {
 
         FrameLayout root = new FrameLayout(this);
 
-        // Actual home wallpaper background
         wallpaperBackground = new ImageView(this);
         wallpaperBackground.setScaleType(
             ImageView.ScaleType.CENTER_CROP
@@ -66,7 +65,6 @@ public class MainActivity extends Activity {
         root.addView(wallpaperBackground,
             new FrameLayout.LayoutParams(-1, -1));
 
-        // Dark overlay for readability
         View overlay = new View(this);
         overlay.setBackgroundColor(
             Color.argb(145, 3, 6, 20)
@@ -94,12 +92,18 @@ public class MainActivity extends Activity {
         buildHomeScreen();
 
         setContentView(root);
+
+        // Initial remote focus
+        appRow.post(() -> {
+            if (appRow.getChildCount() > 0) {
+                appRow.getChildAt(0).requestFocus();
+            }
+        });
     }
 
     private void buildHomeScreen() {
 
         addTopBar();
-
         addHero();
 
         addSection("YOUR APPS  ✦");
@@ -131,6 +135,8 @@ public class MainActivity extends Activity {
         addApp(mainLayout,
             "TV Shows", null, null, false);
 
+        addSection("PERSONALISE YOUR EXPERIENCE");
+
         addApp(mainLayout,
             "Picture Studio", null, null, false);
 
@@ -146,7 +152,6 @@ public class MainActivity extends Activity {
     private void addTopBar() {
 
         TextView title = new TextView(this);
-
         title.setText("∞  AURORA TV");
         title.setTextSize(30);
         title.setTypeface(null, Typeface.BOLD);
@@ -155,7 +160,6 @@ public class MainActivity extends Activity {
         mainLayout.addView(title);
 
         TextView subtitle = new TextView(this);
-
         subtitle.setText(
             "INFINITY X  •  THE FUTURE OF ENTERTAINMENT"
         );
@@ -171,7 +175,6 @@ public class MainActivity extends Activity {
     private void addHero() {
 
         LinearLayout hero = new LinearLayout(this);
-
         hero.setOrientation(LinearLayout.VERTICAL);
         hero.setGravity(Gravity.CENTER_VERTICAL);
         hero.setPadding(30, 25, 30, 25);
@@ -193,8 +196,6 @@ public class MainActivity extends Activity {
         small.setText("WELCOME TO YOUR UNIVERSE");
         small.setTextColor(CYAN);
         small.setTextSize(12);
-        small.setLetterSpacing(0.12f);
-
         hero.addView(small);
 
         TextView heading = new TextView(this);
@@ -203,7 +204,6 @@ public class MainActivity extends Activity {
         heading.setTextSize(31);
         heading.setTypeface(null, Typeface.BOLD);
         heading.setPadding(0, 12, 0, 5);
-
         hero.addView(heading);
 
         TextView description = new TextView(this);
@@ -212,21 +212,18 @@ public class MainActivity extends Activity {
         );
         description.setTextColor(Color.LTGRAY);
         description.setTextSize(15);
-
         hero.addView(description);
 
         LinearLayout.LayoutParams params =
             new LinearLayout.LayoutParams(-1, 230);
 
         params.setMargins(0, 10, 0, 20);
-
         mainLayout.addView(hero, params);
     }
 
     private void addSection(String name) {
 
         TextView section = new TextView(this);
-
         section.setText(name);
         section.setTextSize(18);
         section.setTextColor(
@@ -344,14 +341,11 @@ public class MainActivity extends Activity {
         addApp(appRow, "Settings", null, null, true);
 
         if (count == 0) {
-
             TextView empty = new TextView(this);
-
             empty.setText("No installed apps found");
             empty.setTextColor(Color.LTGRAY);
             empty.setTextSize(16);
             empty.setPadding(10, 20, 10, 20);
-
             appRow.addView(empty);
         }
     }
@@ -361,14 +355,11 @@ public class MainActivity extends Activity {
         PackageManager pm = getPackageManager();
 
         if (android.os.Build.VERSION.SDK_INT >= 33) {
-
             return pm.queryIntentActivities(
                 intent,
                 PackageManager.ResolveInfoFlags.of(0)
             );
-
         } else {
-
             return pm.queryIntentActivities(intent, 0);
         }
     }
@@ -405,9 +396,7 @@ public class MainActivity extends Activity {
         app.setPadding(16, 18, 16, 18);
 
         if (packageName != null) {
-
             try {
-
                 Drawable icon = getPackageManager()
                     .getApplicationIcon(packageName);
 
@@ -424,13 +413,11 @@ public class MainActivity extends Activity {
         }
 
         GradientDrawable normal = new GradientDrawable();
-
         normal.setColor(Color.rgb(20, 28, 58));
         normal.setCornerRadius(20);
         normal.setStroke(2, Color.rgb(45, 95, 180));
 
         GradientDrawable focused = new GradientDrawable();
-
         focused.setColor(Color.rgb(48, 38, 105));
         focused.setCornerRadius(20);
         focused.setStroke(3, CYAN);
@@ -438,7 +425,6 @@ public class MainActivity extends Activity {
         app.setBackground(normal);
 
         app.setOnFocusChangeListener((view, hasFocus) -> {
-
             app.setBackground(
                 hasFocus ? focused : normal
             );
@@ -456,11 +442,10 @@ public class MainActivity extends Activity {
         if (horizontal) {
             params = new LinearLayout.LayoutParams(190, 135);
         } else {
-            params = new LinearLayout.LayoutParams(-1, -2);
+            params = new LinearLayout.LayoutParams(-1, 75);
         }
 
         params.setMargins(5, 6, 12, 8);
-
         parent.addView(app, params);
     }
 
@@ -471,53 +456,54 @@ public class MainActivity extends Activity {
     ) {
 
         if ("Picture Studio".equals(name)) {
-
             startActivity(new Intent(
                 MainActivity.this,
                 PictureStudioActivity.class
             ));
-
             return;
         }
 
         if ("Wallpaper Studio".equals(name)) {
-
             startActivity(new Intent(
                 MainActivity.this,
                 WallpaperActivity.class
             ));
-
             return;
         }
 
-        if ("Movies".equals(name) ||
-            "TV Shows".equals(name) ||
-            "Continue Watching".equals(name)) {
+        if ("Movies".equals(name)) {
+            openMovieHub("MOVIES");
+            return;
+        }
 
-            Toast.makeText(
-                this,
-                name + " coming soon!",
-                Toast.LENGTH_SHORT
-            ).show();
+        if ("TV Shows".equals(name)) {
+            openMovieHub("TV SHOWS");
+            return;
+        }
 
+        if ("Continue Watching".equals(name)) {
+            openMovieHub("CONTINUE");
             return;
         }
 
         if ("Settings".equals(name)) {
-
-            startActivity(new Intent(
-                android.provider.Settings.ACTION_SETTINGS
-            ));
-
+            try {
+                startActivity(new Intent(
+                    android.provider.Settings.ACTION_SETTINGS
+                ));
+            } catch (Exception e) {
+                Toast.makeText(
+                    this,
+                    "Settings unavailable",
+                    Toast.LENGTH_SHORT
+                ).show();
+            }
             return;
         }
 
         if (packageName != null && activityName != null) {
-
             try {
-
-                Intent launch =
-                    new Intent(Intent.ACTION_MAIN);
+                Intent launch = new Intent(Intent.ACTION_MAIN);
 
                 launch.setClassName(
                     packageName, activityName
@@ -530,7 +516,6 @@ public class MainActivity extends Activity {
                 startActivity(launch);
 
             } catch (Exception e) {
-
                 Toast.makeText(
                     this,
                     "Unable to open " + name,
@@ -540,9 +525,19 @@ public class MainActivity extends Activity {
         }
     }
 
+    private void openMovieHub(String mode) {
+
+        Intent intent = new Intent(
+            MainActivity.this,
+            MovieHubActivity.class
+        );
+
+        intent.putExtra("hub_mode", mode);
+        startActivity(intent);
+    }
+
     @Override
     protected void onResume() {
-
         super.onResume();
 
         if (wallpaperBackground != null) {
@@ -550,11 +545,9 @@ public class MainActivity extends Activity {
         }
 
         if (appRow != null) {
-
             appRow.removeAllViews();
             addedPackages.clear();
-
             loadInstalledApps();
         }
     }
-                }
+            }
