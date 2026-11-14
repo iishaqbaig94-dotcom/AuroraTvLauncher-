@@ -1,4 +1,3 @@
-
 package com.aurora.tvlauncher;
 
 import android.app.Activity;
@@ -17,6 +16,8 @@ import android.graphics.drawable.GradientDrawable;
 import android.content.res.ColorStateList;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.KeyEvent;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -30,14 +31,22 @@ import java.util.Map;
 public class PictureStudioActivity extends Activity {
 
     private LinearLayout layout;
+    private ScrollView scroll;
     private android.content.SharedPreferences prefs;
 
     private final Map<String, TextView> modeButtons =
         new LinkedHashMap<>();
 
+    private final Map<String, SeekBar> sliders =
+        new LinkedHashMap<>();
+
+    private final Map<String, TextView> sliderLabels =
+        new LinkedHashMap<>();
+
     private String selectedMode = "Standard";
 
     private ImageView previewImage;
+    private TextView resetButton;
 
     private final int CYAN = Color.rgb(0, 220, 255);
     private final int PURPLE = Color.rgb(139, 92, 255);
@@ -58,9 +67,14 @@ public class PictureStudioActivity extends Activity {
             "picture_mode", "Standard"
         );
 
-        ScrollView scroll = new ScrollView(this);
+        scroll = new ScrollView(this);
         scroll.setFillViewport(true);
         scroll.setBackgroundColor(DARK);
+        scroll.setFocusable(false);
+
+        scroll.setDescendantFocusability(
+            ViewGroup.FOCUS_AFTER_DESCENDANTS
+        );
 
         layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
@@ -70,7 +84,6 @@ public class PictureStudioActivity extends Activity {
         scroll.addView(layout);
 
         addHeader();
-
         addPreview();
 
         addHeading("✦  PICTURE ADJUSTMENTS");
@@ -97,6 +110,7 @@ public class PictureStudioActivity extends Activity {
             "Live preview filters apply inside this studio.\n" +
             "Settings are saved on this device."
         );
+
         note.setTextColor(Color.GRAY);
         note.setTextSize(12);
         note.setGravity(Gravity.CENTER);
@@ -107,11 +121,14 @@ public class PictureStudioActivity extends Activity {
         setContentView(scroll);
 
         updateFilterPreview();
+
+        requestInitialFocus();
     }
 
     private void addHeader() {
 
         TextView title = new TextView(this);
+
         title.setText("∞ AURORA");
         title.setTextColor(CYAN);
         title.setTextSize(28);
@@ -120,6 +137,7 @@ public class PictureStudioActivity extends Activity {
         layout.addView(title);
 
         TextView subtitle = new TextView(this);
+
         subtitle.setText("INFINITY PICTURE STUDIO");
         subtitle.setTextColor(Color.LTGRAY);
         subtitle.setTextSize(12);
@@ -134,13 +152,19 @@ public class PictureStudioActivity extends Activity {
         addHeading("✦  LIVE PICTURE PREVIEW");
 
         previewImage = new ImageView(this);
-        previewImage.setImageBitmap(createPreviewBitmap());
+
+        previewImage.setImageBitmap(
+            createPreviewBitmap()
+        );
+
         previewImage.setScaleType(
             ImageView.ScaleType.CENTER_CROP
         );
+
         previewImage.setFocusable(false);
 
         GradientDrawable border = new GradientDrawable();
+
         border.setColor(Color.rgb(15, 20, 45));
         border.setCornerRadius(22);
         border.setStroke(2, CYAN);
@@ -162,7 +186,9 @@ public class PictureStudioActivity extends Activity {
         int height = 420;
 
         Bitmap bitmap = Bitmap.createBitmap(
-            width, height, Bitmap.Config.ARGB_8888
+            width,
+            height,
+            Bitmap.Config.ARGB_8888
         );
 
         Canvas canvas = new Canvas(bitmap);
@@ -214,11 +240,18 @@ public class PictureStudioActivity extends Activity {
 
         paint.setStyle(Paint.Style.FILL);
         paint.setTextSize(54);
+
         paint.setTypeface(Typeface.create(
-            Typeface.DEFAULT, Typeface.BOLD
+            Typeface.DEFAULT,
+            Typeface.BOLD
         ));
 
-        canvas.drawText("INFINITY X", 300, 225, paint);
+        canvas.drawText(
+            "INFINITY X",
+            300,
+            225,
+            paint
+        );
 
         return bitmap;
     }
@@ -303,6 +336,7 @@ public class PictureStudioActivity extends Activity {
         heading.setTextColor(
             Color.rgb(130, 160, 255)
         );
+
         heading.setTextSize(17);
         heading.setTypeface(null, Typeface.BOLD);
         heading.setLetterSpacing(0.05f);
@@ -323,7 +357,10 @@ public class PictureStudioActivity extends Activity {
 
         TextView label = new TextView(this);
 
-        label.setText(name + " : " + savedValue + "%");
+        label.setText(
+            name + " : " + savedValue + "%"
+        );
+
         label.setTextColor(Color.WHITE);
         label.setTextSize(16);
         label.setTypeface(null, Typeface.BOLD);
@@ -332,10 +369,13 @@ public class PictureStudioActivity extends Activity {
         layout.addView(label);
 
         SeekBar bar = new SeekBar(this);
+
         bar.setMax(100);
         bar.setProgress(savedValue);
         bar.setFocusable(true);
         bar.setFocusableInTouchMode(true);
+
+        bar.setContentDescription(name);
 
         bar.setProgressTintList(
             ColorStateList.valueOf(CYAN)
@@ -345,10 +385,18 @@ public class PictureStudioActivity extends Activity {
             ColorStateList.valueOf(PURPLE)
         );
 
-        bar.setOnFocusChangeListener((v, focused) -> {
+        bar.setOnFocusChangeListener((view, focused) -> {
+
             label.setTextColor(
                 focused ? CYAN : Color.WHITE
             );
+
+            label.setScaleX(focused ? 1.02f : 1f);
+            label.setScaleY(focused ? 1.02f : 1f);
+
+            if (focused) {
+                ensureVisible(bar);
+            }
         });
 
         bar.setOnSeekBarChangeListener(
@@ -369,7 +417,10 @@ public class PictureStudioActivity extends Activity {
 
                         prefs.edit()
                             .putInt(key, progress)
-                            .putString("picture_mode", "Custom")
+                            .putString(
+                                "picture_mode",
+                                "Custom"
+                            )
                             .apply();
 
                         selectedMode = "Custom";
@@ -397,42 +448,57 @@ public class PictureStudioActivity extends Activity {
         params.setMargins(0, 0, 0, 8);
 
         layout.addView(bar, params);
+
+        sliders.put(key, bar);
+        sliderLabels.put(key, label);
     }
 
     private void addMode(String mode) {
 
         TextView button = new TextView(this);
 
-        button.setText("✦  " + mode.toUpperCase() + " MODE");
+        button.setText(
+            "✦  " + mode.toUpperCase() + " MODE"
+        );
+
         button.setTextColor(Color.WHITE);
         button.setTextSize(16);
         button.setTypeface(null, Typeface.BOLD);
         button.setGravity(Gravity.CENTER);
         button.setPadding(20, 20, 20, 20);
+
         button.setFocusable(true);
         button.setClickable(true);
 
-        button.setOnFocusChangeListener((v, focused) -> {
-            updateModeButtons();
-        });
+        button.setContentDescription(
+            mode + " picture mode"
+        );
 
-        button.setOnClickListener(v -> {
+        button.setOnFocusChangeListener(
+            (view, focused) -> {
+
+                updateModeButtons();
+
+                if (focused) {
+                    ensureVisible(button);
+                }
+            }
+        );
+
+        button.setOnClickListener(view -> {
 
             selectedMode = mode;
 
             applyMode(mode);
-
-            prefs.edit()
-                .putString("picture_mode", mode)
-                .apply();
+            updateSliderControls();
+            updateModeButtons();
+            updateFilterPreview();
 
             Toast.makeText(
                 this,
                 mode + " mode activated",
                 Toast.LENGTH_SHORT
             ).show();
-
-            recreate();
         });
 
         LinearLayout.LayoutParams params =
@@ -459,11 +525,16 @@ public class PictureStudioActivity extends Activity {
             int backgroundColor;
 
             if (focused) {
-                backgroundColor = Color.rgb(65, 55, 145);
+                backgroundColor =
+                    Color.rgb(65, 55, 145);
+
             } else if (selected) {
-                backgroundColor = Color.rgb(25, 65, 110);
+                backgroundColor =
+                    Color.rgb(25, 65, 110);
+
             } else {
-                backgroundColor = Color.rgb(24, 31, 60);
+                backgroundColor =
+                    Color.rgb(24, 31, 60);
             }
 
             GradientDrawable bg =
@@ -471,7 +542,8 @@ public class PictureStudioActivity extends Activity {
 
             bg.setStroke(
                 focused ? 3 : (selected ? 2 : 1),
-                focused || selected ? CYAN
+                focused || selected
+                    ? CYAN
                     : Color.rgb(80, 100, 220)
             );
 
@@ -480,6 +552,12 @@ public class PictureStudioActivity extends Activity {
             button.setTextColor(
                 selected ? CYAN : Color.WHITE
             );
+
+            button.animate()
+                .scaleX(focused ? 1.03f : 1f)
+                .scaleY(focused ? 1.03f : 1f)
+                .setDuration(120)
+                .start();
         }
     }
 
@@ -527,41 +605,89 @@ public class PictureStudioActivity extends Activity {
             .apply();
     }
 
+    private void updateSliderControls() {
+
+        for (Map.Entry<String, SeekBar> entry :
+            sliders.entrySet()) {
+
+            String key = entry.getKey();
+
+            int value = prefs.getInt(key, 50);
+
+            SeekBar bar = entry.getValue();
+
+            bar.setProgress(value);
+
+            TextView label = sliderLabels.get(key);
+
+            if (label != null) {
+
+                String name = key.equals("temperature")
+                    ? "Color Temperature"
+                    : key.substring(0, 1).toUpperCase()
+                        + key.substring(1);
+
+                label.setText(
+                    name + " : " + value + "%"
+                );
+            }
+        }
+    }
+
     private void addResetButton() {
 
-        TextView reset = new TextView(this);
+        resetButton = new TextView(this);
 
-        reset.setText("↻  RESET ALL SETTINGS");
-        reset.setTextColor(Color.WHITE);
-        reset.setTextSize(16);
-        reset.setTypeface(null, Typeface.BOLD);
-        reset.setGravity(Gravity.CENTER);
-        reset.setPadding(20, 20, 20, 20);
-        reset.setFocusable(true);
-        reset.setClickable(true);
+        resetButton.setText(
+            "↻  RESET ALL SETTINGS"
+        );
 
-        reset.setBackground(
+        resetButton.setTextColor(Color.WHITE);
+        resetButton.setTextSize(16);
+        resetButton.setTypeface(null, Typeface.BOLD);
+        resetButton.setGravity(Gravity.CENTER);
+        resetButton.setPadding(20, 20, 20, 20);
+
+        resetButton.setFocusable(true);
+        resetButton.setClickable(true);
+
+        resetButton.setBackground(
             makeBackground(Color.rgb(45, 35, 100))
         );
 
-        reset.setOnFocusChangeListener((v, focused) -> {
-            reset.setBackground(
-                makeBackground(
-                    focused
-                        ? Color.rgb(65, 55, 145)
-                        : Color.rgb(45, 35, 100)
-                )
-            );
-        });
+        resetButton.setOnFocusChangeListener(
+            (view, focused) -> {
 
-        reset.setOnClickListener(v -> resetSettings());
+                resetButton.setBackground(
+                    makeBackground(
+                        focused
+                            ? Color.rgb(65, 55, 145)
+                            : Color.rgb(45, 35, 100)
+                    )
+                );
+
+                resetButton.animate()
+                    .scaleX(focused ? 1.03f : 1f)
+                    .scaleY(focused ? 1.03f : 1f)
+                    .setDuration(120)
+                    .start();
+
+                if (focused) {
+                    ensureVisible(resetButton);
+                }
+            }
+        );
+
+        resetButton.setOnClickListener(
+            view -> resetSettings()
+        );
 
         LinearLayout.LayoutParams params =
             new LinearLayout.LayoutParams(-1, -2);
 
         params.setMargins(0, 25, 0, 15);
 
-        layout.addView(reset, params);
+        layout.addView(resetButton, params);
     }
 
     private void resetSettings() {
@@ -570,13 +696,64 @@ public class PictureStudioActivity extends Activity {
 
         selectedMode = "Standard";
 
+        updateSliderControls();
+        updateModeButtons();
+        updateFilterPreview();
+
         Toast.makeText(
             this,
             "Picture settings reset",
             Toast.LENGTH_SHORT
         ).show();
+    }
 
-        recreate();
+    private void ensureVisible(View view) {
+
+        if (view == null || scroll == null) {
+            return;
+        }
+
+        view.post(() -> {
+
+            Rect rect = new Rect(
+                0,
+                0,
+                view.getWidth(),
+                view.getHeight()
+            );
+
+            view.requestRectangleOnScreen(
+                rect,
+                true
+            );
+        });
+    }
+
+    private void requestInitialFocus() {
+
+        scroll.post(() -> {
+
+            TextView selected =
+                modeButtons.get(selectedMode);
+
+            if (selected != null) {
+                selected.requestFocus();
+            } else if (!sliders.isEmpty()) {
+
+                sliders.values()
+                    .iterator()
+                    .next()
+                    .requestFocus();
+
+            } else if (resetButton != null) {
+                resetButton.requestFocus();
+            }
+        });
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
     }
 
     private GradientDrawable makeBackground(int color) {
@@ -589,4 +766,5 @@ public class PictureStudioActivity extends Activity {
 
         return bg;
     }
-}
+    }
+
