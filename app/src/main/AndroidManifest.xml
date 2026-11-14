@@ -29,7 +29,8 @@
 
         <activity
             android:name=".MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:screenOrientation="landscape">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -41,11 +42,18 @@
 
         <activity
             android:name=".PictureStudioActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="landscape" />
 
         <activity
             android:name=".WallpaperActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="landscape" />
+
+        <activity
+            android:name=".MovieHubActivity"
+            android:exported="false"
+            android:screenOrientation="landscape" />
 
     </application>
 
