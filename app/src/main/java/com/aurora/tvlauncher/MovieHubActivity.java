@@ -302,6 +302,18 @@ public class MovieHubActivity extends Activity {
 
             @Override
             public void onSuccess(ArrayList<TvMazeService.Show> shows) {
+
+                String focusedTitle = null;
+                View focusedView = getCurrentFocus();
+
+                if (focusedView != null) {
+                    Object tag = focusedView.getTag();
+
+                    if (tag instanceof String) {
+                        focusedTitle = (String) tag;
+                    }
+                }
+
                 for (int i = catalogue.size() - 1; i >= 0; i--) {
                     if ("TV SHOWS".equals(catalogue.get(i).type)) {
                         catalogue.remove(i);
@@ -326,7 +338,21 @@ public class MovieHubActivity extends Activity {
                 }
 
                 if ("TV SHOWS".equals(mode)) {
+                    final String restoreTitle = focusedTitle;
                     render();
+
+                    if (restoreTitle != null) {
+                        content.post(() -> {
+                            for (int i = 0; i < content.getChildCount(); i++) {
+                                View child = content.getChildAt(i);
+
+                                if (restoreTitle.equals(child.getTag())) {
+                                    child.requestFocus();
+                                    break;
+                                }
+                            }
+                        });
+                    }
                 }
             }
 
@@ -374,13 +400,15 @@ public class MovieHubActivity extends Activity {
         }
     }
 
-        private void addMediaCard(MediaItem item, int number) {
+
+           private void addMediaCard(MediaItem item, int number) {
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.HORIZONTAL);
         card.setGravity(Gravity.CENTER_VERTICAL);
         card.setPadding(14, 12, 14, 12);
         card.setFocusable(true);
         card.setClickable(true);
+        card.setTag(item.title);
         card.setBackground(makeBackground(CARD, PURPLE));
 
         ImageView poster = new ImageView(this);
@@ -695,6 +723,7 @@ public class MovieHubActivity extends Activity {
 
             button.setOnClickListener(v -> {
                 try {
+                    recordRecentApp(packageName);
                     startActivity(launch);
                 } catch (Exception e) {
                     Toast.makeText(
@@ -716,6 +745,44 @@ public class MovieHubActivity extends Activity {
                 "Install a supported app to see it here."
             );
         }
+    }
+
+    private void recordRecentApp(String packageName) {
+        if (packageName == null ||
+                packageName.equals(getPackageName())) {
+            return;
+        }
+
+        android.content.SharedPreferences prefs =
+            getSharedPreferences("AuroraRecentApps", MODE_PRIVATE);
+
+        org.json.JSONArray oldList;
+
+        try {
+            oldList = new org.json.JSONArray(
+                prefs.getString("recent_packages", "[]")
+            );
+        } catch (Exception e) {
+            oldList = new org.json.JSONArray();
+        }
+
+        org.json.JSONArray newList = new org.json.JSONArray();
+        newList.put(packageName);
+
+        for (int i = 0; i < oldList.length(); i++) {
+            String oldPackage = oldList.optString(i, "");
+
+            if (!oldPackage.isEmpty()
+                    && !oldPackage.equals(packageName)
+                    && !oldPackage.equals(getPackageName())
+                    && newList.length() < 8) {
+                newList.put(oldPackage);
+            }
+        }
+
+        prefs.edit()
+            .putString("recent_packages", newList.toString())
+            .apply();
     }
 
     private void addFeatureCard(String heading, String description) {
@@ -837,4 +904,5 @@ public class MovieHubActivity extends Activity {
         finish();
         super.onBackPressed();
     }
-    }
+        }
+      
