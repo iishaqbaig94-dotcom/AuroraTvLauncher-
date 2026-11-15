@@ -645,56 +645,80 @@ public class MainActivity extends Activity {
     }
 
     private void applyFocusEffect(
-        View view,
-        Drawable normal,
-        Drawable focused,
-        float scale
-    ) {
-        view.setFocusableInTouchMode(true);
+    View view,
+    Drawable normal,
+    Drawable focused,
+    float scale
+) {
+    view.setFocusable(true);
+    view.setFocusableInTouchMode(true);
 
-        view.setOnFocusChangeListener((v, hasFocus) -> {
-            view.animate().cancel();
-            view.setBackground(hasFocus ? focused : normal);
+    view.setOnFocusChangeListener((v, hasFocus) -> {
+        view.animate().cancel();
+        view.setBackground(hasFocus ? focused : normal);
 
-            view.animate()
-                .scaleX(hasFocus ? scale : 1f)
-                .scaleY(hasFocus ? scale : 1f)
-                .translationZ(hasFocus ? dp(12) : 0)
-                .setDuration(160)
-                .setInterpolator(new DecelerateInterpolator())
-                .start();
-        });
+        view.animate()
+            .scaleX(hasFocus ? scale : 1f)
+            .scaleY(hasFocus ? scale : 1f)
+            .translationZ(hasFocus ? dp(12) : 0)
+            .setDuration(160)
+            .setInterpolator(new DecelerateInterpolator())
+            .start();
+
+        if (hasFocus) {
+            if (view instanceof TextView) {
+                String text = ((TextView) view).getText().toString();
+
+                if (text.endsWith("  ›")) {
+                    text = text.substring(0, text.length() - 3);
+                }
+
+                lastFocusedName = text;
+            }
+
+            view.post(() -> {
+                Rect rect = new Rect(
+                    0, 0, view.getWidth(), view.getHeight()
+                );
+                view.requestRectangleOnScreen(rect, true);
+            });
+        }
+    });
     }
 
     private View findFocusableByName(
-        ViewGroup parent,
-        String name
-    ) {
-        if (name == null) return null;
+    ViewGroup parent,
+    String name
+) {
+    if (name == null) return null;
 
-        String target = name + "   ›";
+    String target = name + "   ›";
+    String actionTarget = name + "  ›";
 
-        for (int i = 0; i < parent.getChildCount(); i++) {
-            View child = parent.getChildAt(i);
+    for (int i = 0; i < parent.getChildCount(); i++) {
+        View child = parent.getChildAt(i);
 
-            if (child instanceof TextView) {
-                TextView textView = (TextView) child;
+        if (child instanceof TextView) {
+            String text = ((TextView) child)
+                .getText().toString();
 
-                if (target.equals(textView.getText().toString())
-                    && child.isFocusable()) {
-                    return child;
-                }
-            }
-
-            if (child instanceof ViewGroup) {
-                View result = findFocusableByName(
-                    (ViewGroup) child, name
-                );
-                if (result != null) return result;
+            if ((target.equals(text) ||
+                 actionTarget.equals(text)) &&
+                 child.isFocusable()) {
+                return child;
             }
         }
 
-        return null;
+        if (child instanceof ViewGroup) {
+            View result = findFocusableByName(
+                (ViewGroup) child, name
+            );
+
+            if (result != null) return result;
+        }
+    }
+
+    return null;
     }
 
     private void restoreRemoteFocus() {
