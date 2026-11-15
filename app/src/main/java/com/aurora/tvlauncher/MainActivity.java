@@ -872,22 +872,12 @@ public class MainActivity extends Activity {
 
         if ("Settings".equals(name)) {
 
-            try {
+    startActivity(new Intent(
+        MainActivity.this,
+        SettingsActivity.class
+    ));
 
-                startActivity(new Intent(
-                    android.provider.Settings.ACTION_SETTINGS
-                ));
-
-            } catch (Exception e) {
-
-                Toast.makeText(
-                    this,
-                    "Settings unavailable",
-                    Toast.LENGTH_SHORT
-                ).show();
-            }
-
-            return;
+    return;
         }
 
         if (packageName != null &&
