@@ -314,14 +314,16 @@ public class MovieHubActivity extends Activity {
     private void addStreamingApps() {
 
         String[][] supported = {
-            {"Netflix", "com.netflix.mediaclient"},
-            {"YouTube TV", "com.google.android.youtube.tv"},
-            {"YouTube", "com.google.android.youtube"},
-            {"Prime Video", "com.amazon.amazonvideo.livingroom"},
-            {"Disney+", "com.disneyplus"},
-            {"Spotify TV", "com.spotify.tv.android"},
-            {"Spotify", "com.spotify.music"}
-        };
+        {"Netflix", "com.netflix.mediaclient"},
+        {"YouTube TV", "com.google.android.youtube.tv"},
+        {"YouTube", "com.google.android.youtube"},
+        {"Prime Video", "com.amazon.amazonvideo.livingroom"},
+        {"Disney+", "com.disneyplus"},
+        {"JioHotstar", "in.startv.hotstar"},
+        {"JioHotstar", "com.hotstar.android"},
+        {"Spotify TV", "com.spotify.tv.android"},
+        {"Spotify", "com.spotify.music"}
+};
 
         boolean found = false;
 
