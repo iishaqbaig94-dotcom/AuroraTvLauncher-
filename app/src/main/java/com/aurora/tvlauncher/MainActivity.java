@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.KeyEvent;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -36,6 +37,7 @@ public class MainActivity extends Activity {
     private LinearLayout appRow;
     private ImageView wallpaperBackground;
     private ScrollView pageScroll;
+    private HorizontalScrollView appScroll;
 
     private String lastFocusedName = null;
 
@@ -145,9 +147,7 @@ public class MainActivity extends Activity {
 
         addSection("YOUR APPS  ✦");
 
-        HorizontalScrollView appScroll =
-            new HorizontalScrollView(this);
-
+        appScroll = new HorizontalScrollView(this);
         appScroll.setHorizontalScrollBarEnabled(false);
         appScroll.setFocusable(false);
         appScroll.setClipToPadding(false);
@@ -389,6 +389,7 @@ public class MainActivity extends Activity {
         button.setTypeface(null, Typeface.BOLD);
         button.setGravity(Gravity.CENTER);
         button.setFocusable(true);
+        button.setFocusableInTouchMode(true);
         button.setClickable(true);
 
         button.setPadding(
@@ -485,7 +486,7 @@ public class MainActivity extends Activity {
 
         wallpaperBackground.setImageDrawable(background);
     }
-
+    
     private List<ResolveInfo> queryApps(Intent intent) {
 
         PackageManager pm = getPackageManager();
@@ -557,6 +558,7 @@ public class MainActivity extends Activity {
         addApp(appRow, "Settings", null, null, true);
 
         if (count == 0) {
+
             TextView empty = new TextView(this);
             empty.setText("No installed apps found");
             empty.setTextColor(Color.LTGRAY);
@@ -598,6 +600,7 @@ public class MainActivity extends Activity {
         app.setTypeface(null, Typeface.BOLD);
 
         app.setFocusable(true);
+        app.setFocusableInTouchMode(true);
         app.setClickable(true);
 
         app.setPadding(
@@ -609,7 +612,9 @@ public class MainActivity extends Activity {
         );
 
         if (packageName != null) {
+
             try {
+
                 Drawable icon = getPackageManager()
                     .getApplicationIcon(packageName);
 
@@ -650,7 +655,6 @@ public class MainActivity extends Activity {
         app.setBackground(normal);
         app.setElevation(dp(4));
 
-        // One listener handles both focus visuals and focus memory.
         app.setOnFocusChangeListener((view, hasFocus) -> {
 
             app.animate().cancel();
@@ -718,6 +722,8 @@ public class MainActivity extends Activity {
         float scale
     ) {
 
+        view.setFocusableInTouchMode(true);
+
         view.setOnFocusChangeListener((v, hasFocus) -> {
 
             view.animate().cancel();
@@ -761,7 +767,7 @@ public class MainActivity extends Activity {
 
                 if (target.equals(
                     textView.getText().toString()
-                )) {
+                ) && child.isFocusable()) {
                     return child;
                 }
             }
@@ -867,6 +873,7 @@ public class MainActivity extends Activity {
         if ("Settings".equals(name)) {
 
             try {
+
                 startActivity(new Intent(
                     android.provider.Settings.ACTION_SETTINGS
                 ));
