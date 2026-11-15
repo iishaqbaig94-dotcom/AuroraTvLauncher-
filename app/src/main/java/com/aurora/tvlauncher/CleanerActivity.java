@@ -23,8 +23,10 @@ import android.widget.TextView;
 import java.io.File;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 public class CleanerActivity extends Activity {
 
@@ -120,9 +122,7 @@ public class CleanerActivity extends Activity {
         addCard(cacheInfo);
 
         Button clean = makeButton("CLEAR AURORA CACHE", PURPLE);
-
         clean.setOnClickListener(v -> clearAuroraCache());
-
         content.addView(clean);
 
         TextView cacheNote = text(
@@ -134,9 +134,7 @@ public class CleanerActivity extends Activity {
         Button systemStorage = makeButton(
                 "OPEN SYSTEM STORAGE SETTINGS", BLUE
         );
-
         systemStorage.setOnClickListener(v -> openStorageSettings());
-
         content.addView(systemStorage);
 
         addSpace(20);
@@ -181,9 +179,7 @@ public class CleanerActivity extends Activity {
             );
 
         } catch (Exception e) {
-            storageInfo.setText(
-                    "Storage information unavailable."
-            );
+            storageInfo.setText("Storage information unavailable.");
         }
 
         try {
@@ -208,9 +204,7 @@ public class CleanerActivity extends Activity {
             }
 
         } catch (Exception e) {
-            ramInfo.setText(
-                    "Memory information unavailable."
-            );
+            ramInfo.setText("Memory information unavailable.");
         }
 
         updateCacheInfo();
@@ -307,6 +301,7 @@ public class CleanerActivity extends Activity {
         );
 
         String ownPackage = getPackageName();
+        Set<String> addedPackages = new HashSet<>();
 
         for (ResolveInfo item : results) {
 
@@ -317,7 +312,8 @@ public class CleanerActivity extends Activity {
             String packageName =
                     item.activityInfo.packageName;
 
-            if (packageName.equals(ownPackage)) {
+            if (packageName.equals(ownPackage)
+                    || !addedPackages.add(packageName)) {
                 continue;
             }
 
@@ -347,7 +343,7 @@ public class CleanerActivity extends Activity {
             content.addView(appButton);
         }
 
-        if (results.isEmpty()) {
+        if (addedPackages.isEmpty()) {
 
             TextView empty = text(
                     "No launchable apps found.",
@@ -363,9 +359,7 @@ public class CleanerActivity extends Activity {
 
         TextView heading = text(name, 16, BLUE, true);
 
-        heading.setPadding(
-                0, dp(5), 0, dp(10)
-        );
+        heading.setPadding(0, dp(5), 0, dp(10));
 
         content.addView(heading);
     }
@@ -395,9 +389,7 @@ public class CleanerActivity extends Activity {
         button.setText(label);
         button.setTextColor(WHITE);
         button.setTextSize(14);
-        button.setTypeface(
-                Typeface.DEFAULT, Typeface.BOLD
-        );
+        button.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
 
         button.setAllCaps(false);
         button.setGravity(Gravity.CENTER);
@@ -471,9 +463,7 @@ public class CleanerActivity extends Activity {
         view.setTextColor(color);
 
         if (bold) {
-            view.setTypeface(
-                    Typeface.DEFAULT, Typeface.BOLD
-            );
+            view.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
         }
 
         return view;
@@ -485,9 +475,7 @@ public class CleanerActivity extends Activity {
 
         content.addView(
                 space,
-                new LinearLayout.LayoutParams(
-                        1, dp(value)
-                )
+                new LinearLayout.LayoutParams(1, dp(value))
         );
     }
 
@@ -509,7 +497,6 @@ public class CleanerActivity extends Activity {
 
             if (child.isFile()) {
                 size += child.length();
-
             } else {
                 size += getCacheSize(child);
             }
@@ -549,24 +536,18 @@ public class CleanerActivity extends Activity {
         double kb = bytes / 1024.0;
 
         if (kb < 1024) {
-            return String.format(
-                    Locale.US, "%.1f KB", kb
-            );
+            return String.format(Locale.US, "%.1f KB", kb);
         }
 
         double mb = kb / 1024.0;
 
         if (mb < 1024) {
-            return String.format(
-                    Locale.US, "%.1f MB", mb
-            );
+            return String.format(Locale.US, "%.1f MB", mb);
         }
 
         double gb = mb / 1024.0;
 
-        return String.format(
-                Locale.US, "%.2f GB", gb
-        );
+        return String.format(Locale.US, "%.2f GB", gb);
     }
 
     private int dp(int value) {
