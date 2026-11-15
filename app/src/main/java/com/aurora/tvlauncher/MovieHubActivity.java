@@ -85,6 +85,7 @@ public class MovieHubActivity extends Activity {
         setContentView(scroll);
 
         render();
+        loadOnlineShows();
     }
 
     private void loadCatalogue() {
@@ -275,7 +276,51 @@ public class MovieHubActivity extends Activity {
             if (initialFocus != null) initialFocus.requestFocus();
         });
     }
+    private void loadOnlineShows() {
+    TvMazeService.loadShows(new TvMazeService.Callback() {
 
+        @Override
+        public void onSuccess(ArrayList<TvMazeService.Show> shows) {
+            // Purane offline TV samples hatao
+            for (int i = catalogue.size() - 1; i >= 0; i--) {
+                if ("TV SHOWS".equals(catalogue.get(i).type)) {
+                    catalogue.remove(i);
+                }
+            }
+
+            // Online TV shows add karo
+            int limit = Math.min(shows.size(), 60);
+
+            for (int i = 0; i < limit; i++) {
+                TvMazeService.Show show = shows.get(i);
+
+                catalogue.add(new MediaItem(
+                    show.title,
+                    "TV SHOWS",
+                    show.genre,
+                    show.year,
+                    show.description
+                ));
+            }
+
+            if ("TV SHOWS".equals(mode)) {
+                render();
+            }
+        }
+
+        @Override
+        public void onError(String message) {
+            // Internet fail ho toh offline catalogue hi rahega
+            if ("TV SHOWS".equals(mode)) {
+                Toast.makeText(
+                    MovieHubActivity.this,
+                    "Offline catalogue loaded",
+                    Toast.LENGTH_SHORT
+                ).show();
+            }
+        }
+    });
+    }
     private void addCatalogueItems() {
         int count = 0;
 
