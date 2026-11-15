@@ -127,18 +127,20 @@ public class SettingsActivity extends Activity {
         back.setOnClickListener(v -> finish());
         content.addView(back);
 
+        // Initial TV remote focus on first OPEN SETTINGS button
         content.post(() -> {
-    View firstCard = content.getChildAt(4);
+            View firstCard = content.getChildAt(4);
 
-    if (firstCard instanceof LinearLayout) {
-        View firstButton =
-                ((LinearLayout) firstCard).getChildAt(2);
+            if (firstCard instanceof LinearLayout) {
+                View firstButton =
+                        ((LinearLayout) firstCard).getChildAt(2);
 
-        if (firstButton != null) {
-            firstButton.requestFocus();
-        }
+                if (firstButton != null) {
+                    firstButton.requestFocus();
+                }
+            }
+        });
     }
-});
 
     private void addSection(String title) {
         TextView heading = text(
