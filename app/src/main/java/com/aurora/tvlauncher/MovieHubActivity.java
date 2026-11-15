@@ -1,4 +1,3 @@
-
 package com.aurora.tvlauncher;
 
 import android.app.Activity;
@@ -66,7 +65,6 @@ public class MovieHubActivity extends Activity {
         initialFocus = null;
 
         addTopBar();
-
         addHero();
 
         addHeading("EXPLORE YOUR UNIVERSE");
@@ -311,81 +309,231 @@ public class MovieHubActivity extends Activity {
         parent.addView(button, params);
     }
 
-           
-private void addStreamingApps() {
+    private void addStreamingApps() {
 
-    String[][] supported = {
-        {"Netflix", "com.netflix.mediaclient"},
-        {"YouTube TV", "com.google.android.youtube.tv"},
-        {"YouTube", "com.google.android.youtube"},
-        {"Prime Video", "com.amazon.amazonvideo.livingroom"},
-        {"Disney+", "com.disneyplus"},
-        {"JioHotstar", "in.startv.hotstar"},
-        {"JioHotstar", "com.hotstar.android"},
-        {"Spotify TV", "com.spotify.tv.android"},
-        {"Spotify", "com.spotify.music"}
-    };
+        String[][] supported = {
+            {"Netflix", "com.netflix.mediaclient"},
+            {"YouTube TV", "com.google.android.youtube.tv"},
+            {"YouTube", "com.google.android.youtube"},
+            {"Prime Video", "com.amazon.amazonvideo.livingroom"},
+            {"Disney+", "com.disneyplus"},
+            {"JioHotstar", "in.startv.hotstar"},
+            {"JioHotstar", "com.hotstar.android"},
+            {"Spotify TV", "com.spotify.tv.android"},
+            {"Spotify", "com.spotify.music"}
+        };
 
-    boolean found = false;
-    boolean jioHotstarAdded = false;
+        boolean found = false;
+        boolean jioHotstarAdded = false;
 
-    for (String[] app : supported) {
+        for (String[] app : supported) {
 
-        String appName = app[0];
-        String packageName = app[1];
+            String appName = app[0];
+            String packageName = app[1];
 
-        Intent launch =
-            getPackageManager().getLaunchIntentForPackage(
-                packageName
+            Intent launch =
+                getPackageManager().getLaunchIntentForPackage(
+                    packageName
+                );
+
+            if (launch == null) continue;
+
+            if (appName.equals("JioHotstar")) {
+                if (jioHotstarAdded) continue;
+                jioHotstarAdded = true;
+            }
+
+            found = true;
+
+            Button button = makeButton(
+                "▶    OPEN " + appName
             );
 
-        if (launch == null) continue;
+            button.setTextSize(15);
+            button.setBackground(makeBackground(
+                CARD,
+                Color.rgb(55, 105, 185)
+            ));
 
-        if (appName.equals("JioHotstar")) {
-            if (jioHotstarAdded) continue;
-            jioHotstarAdded = true;
+            if (initialFocus == null) {
+                initialFocus = button;
+            }
+
+            button.setOnClickListener(v -> {
+                try {
+                    startActivity(launch);
+                } catch (Exception e) {
+                    Toast.makeText(
+                        this,
+                        "Unable to open " + appName,
+                        Toast.LENGTH_SHORT
+                    ).show();
+                }
+            });
+
+            LinearLayout.LayoutParams params =
+                new LinearLayout.LayoutParams(-1, 62);
+            params.setMargins(0, 5, 0, 5);
+
+            content.addView(button, params);
         }
 
-        found = true;
+        if (!found) {
+            addInfo(
+                "No supported streaming apps were detected. " +
+                "Install a supported streaming app to see it here."
+            );
+        }
+    }
+        private void addFeatureCard(
+        String heading,
+        String description
+    ) {
 
-        Button button = makeButton(
-            "▶    OPEN " + appName
-        );
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setPadding(18, 16, 18, 16);
+        card.setBackground(makeBackground(CARD, PURPLE));
 
-        button.setTextSize(15);
-        button.setBackground(makeBackground(
+        TextView title = new TextView(this);
+        title.setText(heading);
+        title.setTextColor(CYAN);
+        title.setTextSize(16);
+        title.setTypeface(null, Typeface.BOLD);
+
+        card.addView(title);
+
+        TextView info = new TextView(this);
+        info.setText(description);
+        info.setTextColor(Color.LTGRAY);
+        info.setTextSize(13);
+        info.setPadding(0, 8, 0, 0);
+
+        card.addView(info);
+
+        LinearLayout.LayoutParams params =
+            new LinearLayout.LayoutParams(-1, -2);
+        params.setMargins(0, 6, 0, 6);
+
+        content.addView(card, params);
+    }
+
+    private void addHeading(String text) {
+
+        TextView heading = new TextView(this);
+        heading.setText(text);
+        heading.setTextColor(Color.rgb(145, 185, 255));
+        heading.setTextSize(17);
+        heading.setTypeface(null, Typeface.BOLD);
+        heading.setPadding(0, 22, 0, 10);
+
+        content.addView(heading);
+    }
+
+    private void addInfo(String text) {
+
+        TextView info = new TextView(this);
+        info.setText(text);
+        info.setTextColor(Color.LTGRAY);
+        info.setTextSize(14);
+        info.setPadding(18, 16, 18, 16);
+        info.setBackground(makeBackground(
             CARD,
-            Color.rgb(55, 105, 185)
+            Color.rgb(45, 75, 130)
         ));
 
-        if (initialFocus == null) {
-            initialFocus = button;
-        }
+        LinearLayout.LayoutParams params =
+            new LinearLayout.LayoutParams(-1, -2);
+        params.setMargins(0, 5, 0, 8);
 
-        button.setOnClickListener(v -> {
-            try {
-                startActivity(launch);
-            } catch (Exception e) {
-                Toast.makeText(
-                    this,
-                    "Unable to open " + appName,
-                    Toast.LENGTH_SHORT
-                ).show();
+        content.addView(info, params);
+    }
+
+    private Button makeButton(String text) {
+
+        Button button = new Button(this);
+
+        button.setText(text);
+        button.setTextColor(Color.WHITE);
+        button.setTextSize(14);
+        button.setAllCaps(false);
+        button.setGravity(Gravity.CENTER);
+        button.setFocusable(true);
+        button.setClickable(true);
+        button.setPadding(12, 5, 12, 5);
+
+        GradientDrawable normal = makeBackground(
+            CARD,
+            Color.rgb(45, 95, 180)
+        );
+
+        GradientDrawable focused = makeBackground(
+            Color.rgb(48, 38, 105),
+            CYAN
+        );
+
+        button.setBackground(normal);
+
+        button.setOnFocusChangeListener((view, hasFocus) -> {
+
+            button.setBackground(
+                hasFocus ? focused : normal
+            );
+
+            button.setScaleX(hasFocus ? 1.04f : 1f);
+            button.setScaleY(hasFocus ? 1.04f : 1f);
+
+            if (hasFocus) {
+                button.post(() -> {
+                    Rect rect = new Rect(
+                        0, 0,
+                        button.getWidth(),
+                        button.getHeight()
+                    );
+
+                    button.requestRectangleOnScreen(
+                        rect, true
+                    );
+                });
             }
         });
 
-        LinearLayout.LayoutParams params =
-            new LinearLayout.LayoutParams(-1, 62);
-        params.setMargins(0, 5, 0, 5);
-
-        content.addView(button, params);
+        return button;
     }
 
-    if (!found) {
-        addInfo(
-            "No supported streaming apps were detected. " +
-            "Install a supported streaming app to see it here."
+    private GradientDrawable makeBackground(
+        int color,
+        int stroke
+    ) {
+
+        GradientDrawable bg = new GradientDrawable();
+        bg.setColor(color);
+        bg.setCornerRadius(20);
+        bg.setStroke(2, stroke);
+
+        return bg;
+    }
+
+    private GradientDrawable makeHeroBackground() {
+
+        GradientDrawable bg = new GradientDrawable(
+            GradientDrawable.Orientation.TL_BR,
+            new int[] {
+                Color.rgb(22, 30, 75),
+                Color.rgb(55, 25, 105),
+                Color.rgb(8, 45, 75)
+            }
         );
+
+        bg.setCornerRadius(26);
+        bg.setStroke(2, Color.rgb(40, 150, 230));
+
+        return bg;
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
+        super.onBackPressed();
     }
 }
-    
