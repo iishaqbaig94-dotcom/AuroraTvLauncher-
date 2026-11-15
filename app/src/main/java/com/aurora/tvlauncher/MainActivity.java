@@ -417,6 +417,9 @@ public class MainActivity extends Activity {
             if (info.activityInfo == null) continue;
 
             String packageName = info.activityInfo.packageName;
+            if ("Settings".equalsIgnoreCase(getAppName(info))) {
+    continue;
+            }
 
             if (packageName == null ||
                 packageName.equals(getPackageName()) ||
