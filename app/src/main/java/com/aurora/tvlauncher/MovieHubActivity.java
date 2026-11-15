@@ -1,6 +1,8 @@
+
 package com.aurora.tvlauncher;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.content.Intent;
 import android.graphics.Color;
@@ -10,11 +12,15 @@ import android.graphics.drawable.GradientDrawable;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.Locale;
 
 public class MovieHubActivity extends Activity {
 
@@ -23,6 +29,7 @@ public class MovieHubActivity extends Activity {
 
     private String mode = "MOVIES";
     private String selectedGenre = "All";
+    private String searchQuery = "";
 
     private final int CYAN = Color.rgb(0, 220, 255);
     private final int PURPLE = Color.rgb(105, 55, 210);
@@ -34,6 +41,25 @@ public class MovieHubActivity extends Activity {
         "Thriller", "Drama", "Animation", "Adventure"
     };
 
+    private static class MediaItem {
+        String title;
+        String type;
+        String genre;
+        String year;
+        String description;
+
+        MediaItem(String title, String type, String genre,
+                  String year, String description) {
+            this.title = title;
+            this.type = type;
+            this.genre = genre;
+            this.year = year;
+            this.description = description;
+        }
+    }
+
+    private final ArrayList<MediaItem> catalogue = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +69,8 @@ public class MovieHubActivity extends Activity {
 
         getWindow().setStatusBarColor(DARK);
         getWindow().setNavigationBarColor(DARK);
+
+        loadCatalogue();
 
         ScrollView scroll = new ScrollView(this);
         scroll.setFillViewport(true);
@@ -59,8 +87,86 @@ public class MovieHubActivity extends Activity {
         render();
     }
 
-    private void render() {
+    private void loadCatalogue() {
+        catalogue.clear();
 
+        catalogue.add(new MediaItem(
+            "The Dark Knight", "MOVIES", "Action", "2008",
+            "A masked hero faces a dangerous criminal mastermind in Gotham City."
+        ));
+        catalogue.add(new MediaItem(
+            "Inception", "MOVIES", "Sci-Fi", "2010",
+            "A skilled dream thief takes on an extraordinary mission."
+        ));
+        catalogue.add(new MediaItem(
+            "Interstellar", "MOVIES", "Sci-Fi", "2014",
+            "Explorers travel beyond Earth in search of a future for humanity."
+        ));
+        catalogue.add(new MediaItem(
+            "The Matrix", "MOVIES", "Action", "1999",
+            "A computer hacker discovers that reality is not what it seems."
+        ));
+        catalogue.add(new MediaItem(
+            "Joker", "MOVIES", "Drama", "2019",
+            "A troubled comedian struggles to find his place in society."
+        ));
+        catalogue.add(new MediaItem(
+            "Spider-Man: Into the Spider-Verse", "MOVIES",
+            "Animation", "2018",
+            "A young hero discovers a world of alternate Spider-people."
+        ));
+        catalogue.add(new MediaItem(
+            "The Martian", "MOVIES", "Adventure", "2015",
+            "An astronaut fights to survive after being stranded on Mars."
+        ));
+        catalogue.add(new MediaItem(
+            "John Wick", "MOVIES", "Action", "2014",
+            "A retired hitman is pulled back into a dangerous underworld."
+        ));
+        catalogue.add(new MediaItem(
+            "The Hangover", "MOVIES", "Comedy", "2009",
+            "Friends try to piece together a wild night in Las Vegas."
+        ));
+        catalogue.add(new MediaItem(
+            "A Quiet Place", "MOVIES", "Thriller", "2018",
+            "A family must stay silent to survive a mysterious threat."
+        ));
+
+        catalogue.add(new MediaItem(
+            "Stranger Things", "TV SHOWS", "Sci-Fi", "2016",
+            "A group of friends uncover mysterious events in their town."
+        ));
+        catalogue.add(new MediaItem(
+            "Sherlock", "TV SHOWS", "Drama", "2010",
+            "A brilliant detective solves unusual cases in modern London."
+        ));
+        catalogue.add(new MediaItem(
+            "The Last of Us", "TV SHOWS", "Adventure", "2023",
+            "Two survivors travel through a dangerous post-apocalyptic world."
+        ));
+        catalogue.add(new MediaItem(
+            "Wednesday", "TV SHOWS", "Comedy", "2022",
+            "A clever young student investigates strange mysteries."
+        ));
+        catalogue.add(new MediaItem(
+            "Breaking Bad", "TV SHOWS", "Drama", "2008",
+            "A chemistry teacher enters a dangerous criminal world."
+        ));
+        catalogue.add(new MediaItem(
+            "Dark", "TV SHOWS", "Thriller", "2017",
+            "A disappearance reveals secrets connecting four families."
+        ));
+        catalogue.add(new MediaItem(
+            "The Mandalorian", "TV SHOWS", "Adventure", "2019",
+            "A lone bounty hunter travels through a distant galaxy."
+        ));
+        catalogue.add(new MediaItem(
+            "One Piece", "TV SHOWS", "Action", "1999",
+            "A young pirate and his crew search for a legendary treasure."
+        ));
+    }
+
+    private void render() {
         content.removeAllViews();
         initialFocus = null;
 
@@ -77,17 +183,35 @@ public class MovieHubActivity extends Activity {
 
         content.addView(tabs);
 
+        Button search = makeButton(
+            "⌕   SEARCH MOVIES & TV SHOWS"
+        );
+        search.setTextSize(16);
+        search.setBackground(makeBackground(CARD, CYAN));
+        search.setOnClickListener(v -> showSearch());
+
+        LinearLayout.LayoutParams searchParams =
+            new LinearLayout.LayoutParams(-1, 60);
+        searchParams.setMargins(0, 12, 0, 8);
+        content.addView(search, searchParams);
+
+        if (!searchQuery.isEmpty()) {
+            addInfo("Search: " + searchQuery);
+            Button clear = makeButton("✕  CLEAR SEARCH");
+            clear.setOnClickListener(v -> {
+                searchQuery = "";
+                render();
+            });
+            content.addView(clear);
+        }
+
         if ("CONTINUE".equals(mode)) {
-
             addHeading("CONTINUE WATCHING");
-
             addInfo(
-                "Your viewing history is not connected yet. " +
+                "Viewing history is not connected yet. " +
                 "Open a streaming service below to continue watching."
             );
-
         } else {
-
             addHeading("BROWSE BY GENRE");
 
             LinearLayout genreRow = new LinearLayout(this);
@@ -99,33 +223,23 @@ public class MovieHubActivity extends Activity {
 
             HorizontalScrollView genreScroll =
                 new HorizontalScrollView(this);
-
             genreScroll.setHorizontalScrollBarEnabled(false);
             genreScroll.setFocusable(false);
             genreScroll.addView(genreRow);
-
             content.addView(genreScroll);
 
-            addHeading(
-                selectedGenre.equals("All")
-                    ? "FEATURED " + mode
-                    : selectedGenre.toUpperCase() + " " + mode
-            );
+            String heading = selectedGenre.equals("All")
+                ? "FEATURED " + mode
+                : selectedGenre.toUpperCase() + " " + mode;
 
-            addInfo(
-                "Explore " + selectedGenre.toLowerCase() +
-                " " + mode.toLowerCase() +
-                " through your connected streaming services."
-            );
+            addHeading(heading);
+            addCatalogueItems();
         }
 
         addHeading("STREAMING COLLECTION");
-
         addInfo(
-            "Your installed entertainment apps appear below. " +
-            "Select a service to launch it."
+            "Open your installed entertainment apps directly from Aurora."
         );
-
         addStreamingApps();
 
         addHeading("INFINITY EXPERIENCE");
@@ -137,12 +251,12 @@ public class MovieHubActivity extends Activity {
 
         addFeatureCard(
             "✦  SMART CONTENT HUB",
-            "Discover movies and shows through your installed streaming services."
+            "Browse your offline catalogue and discover movies and shows."
         );
 
         addInfo(
-            "Live catalogues, movie posters, viewing history and playback " +
-            "require integration with a supported content provider."
+            "This is an offline sample catalogue. Online posters, live listings " +
+            "and viewing history will be connected in a later upgrade."
         );
 
         Button back = makeButton("‹   BACK TO AURORA HOME");
@@ -155,19 +269,171 @@ public class MovieHubActivity extends Activity {
         backParams.setMargins(0, 25, 0, 10);
         content.addView(back, backParams);
 
-        if (initialFocus == null) {
-            initialFocus = back;
-        }
+        if (initialFocus == null) initialFocus = back;
 
         content.post(() -> {
-            if (initialFocus != null) {
-                initialFocus.requestFocus();
-            }
+            if (initialFocus != null) initialFocus.requestFocus();
         });
     }
 
-    private void addTopBar() {
+    private void addCatalogueItems() {
+        int count = 0;
 
+        for (MediaItem item : catalogue) {
+            if (!item.type.equals(mode)) continue;
+
+            if (!selectedGenre.equals("All")
+                    && !item.genre.equals(selectedGenre)) {
+                continue;
+            }
+
+            if (!searchQuery.isEmpty()) {
+                String query = searchQuery.toLowerCase(Locale.ROOT);
+
+                if (!item.title.toLowerCase(Locale.ROOT).contains(query)
+                        && !item.genre.toLowerCase(Locale.ROOT).contains(query)) {
+                    continue;
+                }
+            }
+
+            count++;
+            addMediaCard(item, count);
+        }
+
+        if (count == 0) {
+            addInfo(
+                "No matching titles found. Try another genre or search."
+            );
+        }
+    }
+
+    private void addMediaCard(MediaItem item, int number) {
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.HORIZONTAL);
+        card.setGravity(Gravity.CENTER_VERTICAL);
+        card.setPadding(14, 12, 14, 12);
+        card.setFocusable(true);
+        card.setClickable(true);
+        card.setBackground(makeBackground(CARD, PURPLE));
+
+        TextView poster = new TextView(this);
+        poster.setText("✦\n" + number);
+        poster.setTextColor(CYAN);
+        poster.setTextSize(23);
+        poster.setTypeface(null, Typeface.BOLD);
+        poster.setGravity(Gravity.CENTER);
+        poster.setBackground(makeHeroBackground());
+
+        LinearLayout.LayoutParams posterParams =
+            new LinearLayout.LayoutParams(82, 112);
+        posterParams.setMargins(0, 0, 16, 0);
+        card.addView(poster, posterParams);
+
+        LinearLayout details = new LinearLayout(this);
+        details.setOrientation(LinearLayout.VERTICAL);
+
+        TextView title = new TextView(this);
+        title.setText(item.title);
+        title.setTextColor(Color.WHITE);
+        title.setTextSize(17);
+        title.setTypeface(null, Typeface.BOLD);
+        details.addView(title);
+
+        TextView meta = new TextView(this);
+        meta.setText(item.genre + "  •  " + item.year);
+        meta.setTextColor(CYAN);
+        meta.setTextSize(12);
+        meta.setPadding(0, 7, 0, 7);
+        details.addView(meta);
+
+        TextView hint = new TextView(this);
+        hint.setText("SELECT TO VIEW DETAILS  ›");
+        hint.setTextColor(Color.LTGRAY);
+        hint.setTextSize(11);
+        details.addView(hint);
+
+        card.addView(details, new LinearLayout.LayoutParams(
+            0, -2, 1
+        ));
+
+        card.setOnClickListener(v -> showDetails(item));
+
+        card.setOnFocusChangeListener((v, focused) -> {
+            card.setBackground(makeBackground(
+                focused ? Color.rgb(39, 35, 90) : CARD,
+                focused ? CYAN : PURPLE
+            ));
+            card.setScaleX(focused ? 1.025f : 1f);
+            card.setScaleY(focused ? 1.025f : 1f);
+        });
+
+        LinearLayout.LayoutParams params =
+            new LinearLayout.LayoutParams(-1, -2);
+        params.setMargins(0, 7, 0, 7);
+        content.addView(card, params);
+
+        if (initialFocus == null) initialFocus = card;
+    }
+
+    private void showDetails(MediaItem item) {
+        LinearLayout panel = new LinearLayout(this);
+        panel.setOrientation(LinearLayout.VERTICAL);
+        panel.setPadding(22, 18, 22, 10);
+
+        TextView title = new TextView(this);
+        title.setText(item.title);
+        title.setTextColor(Color.WHITE);
+        title.setTextSize(22);
+        title.setTypeface(null, Typeface.BOLD);
+        panel.addView(title);
+
+        TextView info = new TextView(this);
+        info.setText(
+            item.type + "  •  " + item.genre + "  •  " + item.year
+        );
+        info.setTextColor(CYAN);
+        info.setTextSize(13);
+        info.setPadding(0, 12, 0, 12);
+        panel.addView(info);
+
+        TextView description = new TextView(this);
+        description.setText(item.description);
+        description.setTextColor(Color.WHITE);
+        description.setTextSize(15);
+        panel.addView(description);
+
+        new AlertDialog.Builder(this)
+            .setView(panel)
+            .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
+            .show();
+    }
+
+    private void showSearch() {
+        EditText input = new EditText(this);
+        input.setSingleLine(true);
+        input.setText(searchQuery);
+        input.setHint("Enter movie or show name");
+        input.setTextColor(Color.WHITE);
+        input.setHintTextColor(Color.LTGRAY);
+
+        LinearLayout box = new LinearLayout(this);
+        box.setPadding(22, 10, 22, 0);
+        box.addView(input);
+
+        new AlertDialog.Builder(this)
+            .setTitle("SEARCH AURORA")
+            .setView(box)
+            .setPositiveButton("SEARCH", (dialog, which) -> {
+                searchQuery = input.getText().toString().trim();
+                render();
+            })
+            .setNegativeButton("CANCEL", null)
+            .show();
+
+        input.requestFocus();
+    }
+
+    private void addTopBar() {
         LinearLayout bar = new LinearLayout(this);
         bar.setOrientation(LinearLayout.HORIZONTAL);
         bar.setGravity(Gravity.CENTER_VERTICAL);
@@ -178,9 +444,7 @@ public class MovieHubActivity extends Activity {
         brand.setTextSize(24);
         brand.setTypeface(null, Typeface.BOLD);
 
-        bar.addView(brand, new LinearLayout.LayoutParams(
-            0, -2, 1
-        ));
+        bar.addView(brand, new LinearLayout.LayoutParams(0, -2, 1));
 
         TextView status = new TextView(this);
         status.setText("● INFINITY X");
@@ -189,8 +453,7 @@ public class MovieHubActivity extends Activity {
         status.setTypeface(null, Typeface.BOLD);
         status.setPadding(15, 10, 15, 10);
         status.setBackground(makeBackground(
-            Color.rgb(12, 42, 42),
-            Color.rgb(35, 180, 150)
+            Color.rgb(12, 42, 42), Color.rgb(35, 180, 150)
         ));
 
         bar.addView(status);
@@ -201,17 +464,14 @@ public class MovieHubActivity extends Activity {
         subtitle.setTextColor(Color.LTGRAY);
         subtitle.setTextSize(11);
         subtitle.setPadding(2, 8, 0, 15);
-
         content.addView(subtitle);
     }
 
     private void addHero() {
-
         LinearLayout hero = new LinearLayout(this);
         hero.setOrientation(LinearLayout.VERTICAL);
         hero.setGravity(Gravity.CENTER_VERTICAL);
         hero.setPadding(25, 22, 25, 22);
-
         hero.setBackground(makeHeroBackground());
 
         TextView tag = new TextView(this);
@@ -219,7 +479,6 @@ public class MovieHubActivity extends Activity {
         tag.setTextColor(CYAN);
         tag.setTextSize(12);
         tag.setTypeface(null, Typeface.BOLD);
-
         hero.addView(tag);
 
         TextView heading = new TextView(this);
@@ -228,33 +487,22 @@ public class MovieHubActivity extends Activity {
         heading.setTextSize(29);
         heading.setTypeface(null, Typeface.BOLD);
         heading.setPadding(0, 12, 0, 8);
-
         hero.addView(heading);
 
         TextView description = new TextView(this);
-        description.setText(
-            "Movies  •  Series  •  Your favourite apps"
-        );
+        description.setText("Movies  •  Series  •  Your favourite apps");
         description.setTextColor(Color.rgb(195, 210, 240));
         description.setTextSize(14);
-
         hero.addView(description);
 
         LinearLayout.LayoutParams params =
             new LinearLayout.LayoutParams(-1, 190);
         params.setMargins(0, 10, 0, 15);
-
         content.addView(hero, params);
     }
 
-    private void addTab(
-        LinearLayout parent,
-        String label,
-        String value
-    ) {
-
+    private void addTab(LinearLayout parent, String label, String value) {
         Button button = makeButton(label);
-
         boolean active = mode.equals(value);
 
         button.setBackground(makeBackground(
@@ -262,30 +510,23 @@ public class MovieHubActivity extends Activity {
             active ? CYAN : Color.rgb(50, 75, 130)
         ));
 
-        if (active && initialFocus == null) {
-            initialFocus = button;
-        }
+        if (active && initialFocus == null) initialFocus = button;
 
         button.setOnClickListener(v -> {
             mode = value;
             selectedGenre = "All";
+            searchQuery = "";
             render();
         });
 
         LinearLayout.LayoutParams params =
             new LinearLayout.LayoutParams(0, 65, 1);
-
         params.setMargins(5, 5, 5, 5);
         parent.addView(button, params);
     }
 
-    private void addGenre(
-        LinearLayout parent,
-        String genre
-    ) {
-
+    private void addGenre(LinearLayout parent, String genre) {
         Button button = makeButton(genre);
-
         boolean active = selectedGenre.equals(genre);
 
         button.setBackground(makeBackground(
@@ -293,9 +534,7 @@ public class MovieHubActivity extends Activity {
             active ? CYAN : Color.rgb(50, 75, 130)
         ));
 
-        if (active && initialFocus == null) {
-            initialFocus = button;
-        }
+        if (active && initialFocus == null) initialFocus = button;
 
         button.setOnClickListener(v -> {
             selectedGenre = genre;
@@ -304,13 +543,11 @@ public class MovieHubActivity extends Activity {
 
         LinearLayout.LayoutParams params =
             new LinearLayout.LayoutParams(-2, 52);
-
         params.setMargins(5, 5, 8, 5);
         parent.addView(button, params);
     }
 
     private void addStreamingApps() {
-
         String[][] supported = {
             {"Netflix", "com.netflix.mediaclient"},
             {"YouTube TV", "com.google.android.youtube.tv"},
@@ -327,14 +564,11 @@ public class MovieHubActivity extends Activity {
         boolean jioHotstarAdded = false;
 
         for (String[] app : supported) {
-
             String appName = app[0];
             String packageName = app[1];
 
             Intent launch =
-                getPackageManager().getLaunchIntentForPackage(
-                    packageName
-                );
+                getPackageManager().getLaunchIntentForPackage(packageName);
 
             if (launch == null) continue;
 
@@ -345,27 +579,20 @@ public class MovieHubActivity extends Activity {
 
             found = true;
 
-            Button button = makeButton(
-                "▶    OPEN " + appName
-            );
-
+            Button button = makeButton("▶    OPEN " + appName);
             button.setTextSize(15);
             button.setBackground(makeBackground(
-                CARD,
-                Color.rgb(55, 105, 185)
+                CARD, Color.rgb(55, 105, 185)
             ));
 
-            if (initialFocus == null) {
-                initialFocus = button;
-            }
+            if (initialFocus == null) initialFocus = button;
 
             button.setOnClickListener(v -> {
                 try {
                     startActivity(launch);
                 } catch (Exception e) {
                     Toast.makeText(
-                        this,
-                        "Unable to open " + appName,
+                        this, "Unable to open " + appName,
                         Toast.LENGTH_SHORT
                     ).show();
                 }
@@ -374,22 +601,18 @@ public class MovieHubActivity extends Activity {
             LinearLayout.LayoutParams params =
                 new LinearLayout.LayoutParams(-1, 62);
             params.setMargins(0, 5, 0, 5);
-
             content.addView(button, params);
         }
 
         if (!found) {
             addInfo(
                 "No supported streaming apps were detected. " +
-                "Install a supported streaming app to see it here."
+                "Install a supported app to see it here."
             );
         }
     }
-        private void addFeatureCard(
-        String heading,
-        String description
-    ) {
 
+    private void addFeatureCard(String heading, String description) {
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
         card.setPadding(18, 16, 18, 16);
@@ -400,7 +623,6 @@ public class MovieHubActivity extends Activity {
         title.setTextColor(CYAN);
         title.setTextSize(16);
         title.setTypeface(null, Typeface.BOLD);
-
         card.addView(title);
 
         TextView info = new TextView(this);
@@ -408,51 +630,42 @@ public class MovieHubActivity extends Activity {
         info.setTextColor(Color.LTGRAY);
         info.setTextSize(13);
         info.setPadding(0, 8, 0, 0);
-
         card.addView(info);
 
         LinearLayout.LayoutParams params =
             new LinearLayout.LayoutParams(-1, -2);
         params.setMargins(0, 6, 0, 6);
-
         content.addView(card, params);
     }
 
     private void addHeading(String text) {
-
         TextView heading = new TextView(this);
         heading.setText(text);
         heading.setTextColor(Color.rgb(145, 185, 255));
         heading.setTextSize(17);
         heading.setTypeface(null, Typeface.BOLD);
         heading.setPadding(0, 22, 0, 10);
-
         content.addView(heading);
     }
 
     private void addInfo(String text) {
-
         TextView info = new TextView(this);
         info.setText(text);
         info.setTextColor(Color.LTGRAY);
         info.setTextSize(14);
         info.setPadding(18, 16, 18, 16);
         info.setBackground(makeBackground(
-            CARD,
-            Color.rgb(45, 75, 130)
+            CARD, Color.rgb(45, 75, 130)
         ));
 
         LinearLayout.LayoutParams params =
             new LinearLayout.LayoutParams(-1, -2);
         params.setMargins(0, 5, 0, 8);
-
         content.addView(info, params);
     }
 
     private Button makeButton(String text) {
-
         Button button = new Button(this);
-
         button.setText(text);
         button.setTextColor(Color.WHITE);
         button.setTextSize(14);
@@ -463,37 +676,26 @@ public class MovieHubActivity extends Activity {
         button.setPadding(12, 5, 12, 5);
 
         GradientDrawable normal = makeBackground(
-            CARD,
-            Color.rgb(45, 95, 180)
+            CARD, Color.rgb(45, 95, 180)
         );
 
         GradientDrawable focused = makeBackground(
-            Color.rgb(48, 38, 105),
-            CYAN
+            Color.rgb(48, 38, 105), CYAN
         );
 
         button.setBackground(normal);
 
         button.setOnFocusChangeListener((view, hasFocus) -> {
-
-            button.setBackground(
-                hasFocus ? focused : normal
-            );
-
+            button.setBackground(hasFocus ? focused : normal);
             button.setScaleX(hasFocus ? 1.04f : 1f);
             button.setScaleY(hasFocus ? 1.04f : 1f);
 
             if (hasFocus) {
                 button.post(() -> {
                     Rect rect = new Rect(
-                        0, 0,
-                        button.getWidth(),
-                        button.getHeight()
+                        0, 0, button.getWidth(), button.getHeight()
                     );
-
-                    button.requestRectangleOnScreen(
-                        rect, true
-                    );
+                    button.requestRectangleOnScreen(rect, true);
                 });
             }
         });
@@ -501,21 +703,15 @@ public class MovieHubActivity extends Activity {
         return button;
     }
 
-    private GradientDrawable makeBackground(
-        int color,
-        int stroke
-    ) {
-
+    private GradientDrawable makeBackground(int color, int stroke) {
         GradientDrawable bg = new GradientDrawable();
         bg.setColor(color);
         bg.setCornerRadius(20);
         bg.setStroke(2, stroke);
-
         return bg;
     }
 
     private GradientDrawable makeHeroBackground() {
-
         GradientDrawable bg = new GradientDrawable(
             GradientDrawable.Orientation.TL_BR,
             new int[] {
@@ -527,7 +723,6 @@ public class MovieHubActivity extends Activity {
 
         bg.setCornerRadius(26);
         bg.setStroke(2, Color.rgb(40, 150, 230));
-
         return bg;
     }
 
