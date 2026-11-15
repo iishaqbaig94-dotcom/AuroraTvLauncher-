@@ -115,7 +115,6 @@ public class WallpaperActivity extends Activity {
         layout.addView(footer);
 
         updatePreview();
-
         requestInitialFocus();
     }
 
@@ -196,7 +195,6 @@ public class WallpaperActivity extends Activity {
         updateWallpaperCard(card, index);
 
         card.setOnFocusChangeListener((v, focused) -> {
-
             updateWallpaperCard(card, index);
 
             if (focused) {
@@ -278,9 +276,7 @@ public class WallpaperActivity extends Activity {
 
                 for (int j = 0; j < names.length; j++) {
 
-                    if (text.getText().toString().contains(
-                        names[j]
-                    )) {
+                    if (text.getText().toString().contains(names[j])) {
                         updateWallpaperCard(text, j);
                     }
                 }
@@ -398,7 +394,9 @@ public class WallpaperActivity extends Activity {
                     return;
                 }
 
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+                // Use the selected built-in wallpaper.
+            }
         }
 
         int index = prefs.getInt("wallpaper_index", 0);
@@ -434,7 +432,8 @@ public class WallpaperActivity extends Activity {
         intent.addCategory(Intent.CATEGORY_OPENABLE);
 
         intent.addFlags(
-            Intent.FLAG_GRANT_READ_URI_PERMISSION
+            Intent.FLAG_GRANT_READ_URI_PERMISSION |
+            Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
         );
 
         try {
@@ -478,7 +477,16 @@ public class WallpaperActivity extends Activity {
                 getContentResolver()
                     .takePersistableUriPermission(uri, flags);
 
-            } catch (Exception ignored) {}
+            } catch (Exception e) {
+
+                Toast.makeText(
+                    this,
+                    "Image permission could not be saved. Please choose another image.",
+                    Toast.LENGTH_LONG
+                ).show();
+
+                return;
+            }
 
             prefs.edit()
                 .putString("custom_wallpaper", uri.toString())
