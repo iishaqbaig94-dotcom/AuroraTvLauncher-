@@ -47,6 +47,7 @@ public class MovieHubActivity extends Activity {
         String genre;
         String year;
         String description;
+        String posterUrl = "";
 
         MediaItem(String title, String type, String genre,
                   String year, String description) {
@@ -294,12 +295,16 @@ public class MovieHubActivity extends Activity {
             for (int i = 0; i < limit; i++) {
                 TvMazeService.Show show = shows.get(i);
 
-                catalogue.add(new MediaItem(
-                    show.title,
-                    "TV SHOWS",
-                    show.genre,
-                    show.year,
-                    show.description
+                 MediaItem item = new MediaItem(
+    show.title,
+    "TV SHOWS",
+    show.genre,
+    show.year,
+    show.description
+);
+
+item.posterUrl = show.posterUrl;
+catalogue.add(item);
                 ));
             }
 
