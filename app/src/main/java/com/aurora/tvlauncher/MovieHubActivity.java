@@ -297,77 +297,113 @@ public class MovieHubActivity extends Activity {
         });
     }
 
-    private void loadOnlineShows() {
-        TvMazeService.loadShows(new TvMazeService.Callback() {
+    
+private void loadOnlineShows() {
+    TvMazeService.loadShows(new TvMazeService.Callback() {
 
-            @Override
-            public void onSuccess(ArrayList<TvMazeService.Show> shows) {
+        @Override
+        public void onSuccess(ArrayList<TvMazeService.Show> shows) {
 
-                String focusedTitle = null;
-                View focusedView = getCurrentFocus();
+            View focusedView = getCurrentFocus();
+            String focusKey = getFocusKey(focusedView);
 
-                if (focusedView != null) {
-                    Object tag = focusedView.getTag();
-
-                    if (tag instanceof String) {
-                        focusedTitle = (String) tag;
-                    }
-                }
-
-                for (int i = catalogue.size() - 1; i >= 0; i--) {
-                    if ("TV SHOWS".equals(catalogue.get(i).type)) {
-                        catalogue.remove(i);
-                    }
-                }
-
-                int limit = Math.min(shows.size(), 60);
-
-                for (int i = 0; i < limit; i++) {
-                    TvMazeService.Show show = shows.get(i);
-
-                    MediaItem item = new MediaItem(
-                        show.title,
-                        "TV SHOWS",
-                        show.genre,
-                        show.year,
-                        show.description
-                    );
-
-                    item.posterUrl = show.posterUrl;
-                    catalogue.add(item);
-                }
-
-                if ("TV SHOWS".equals(mode)) {
-                    final String restoreTitle = focusedTitle;
-                    render();
-
-                    if (restoreTitle != null) {
-                        content.post(() -> {
-                            for (int i = 0; i < content.getChildCount(); i++) {
-                                View child = content.getChildAt(i);
-
-                                if (restoreTitle.equals(child.getTag())) {
-                                    child.requestFocus();
-                                    break;
-                                }
-                            }
-                        });
-                    }
+            for (int i = catalogue.size() - 1; i >= 0; i--) {
+                if ("TV SHOWS".equals(catalogue.get(i).type)) {
+                    catalogue.remove(i);
                 }
             }
 
-            @Override
-            public void onError(String message) {
-                if ("TV SHOWS".equals(mode)) {
-                    Toast.makeText(
-                        MovieHubActivity.this,
-                        "Offline catalogue loaded",
-                        Toast.LENGTH_SHORT
-                    ).show();
+            int limit = Math.min(shows.size(), 60);
+
+            for (int i = 0; i < limit; i++) {
+                TvMazeService.Show show = shows.get(i);
+
+                MediaItem item = new MediaItem(
+                    show.title,
+                    "TV SHOWS",
+                    show.genre,
+                    show.year,
+                    show.description
+                );
+
+                item.posterUrl = show.posterUrl;
+                catalogue.add(item);
+            }
+
+            if ("TV SHOWS".equals(mode)) {
+                render();
+
+                if (focusKey != null) {
+                    content.post(() -> {
+                        View restore = findFocusableByKey(
+                            content, focusKey
+                        );
+
+                        if (restore != null) {
+                            restore.requestFocus();
+                        }
+                    });
                 }
             }
-        });
+        }
+
+        @Override
+        public void onError(String message) {
+            if ("TV SHOWS".equals(mode)) {
+                Toast.makeText(
+                    MovieHubActivity.this,
+                    "Offline catalogue loaded",
+                    Toast.LENGTH_SHORT
+                ).show();
+            }
+        }
+    });
+}
+    
+private String getFocusKey(View view) {
+    if (view == null) return null;
+
+    Object tag = view.getTag();
+
+    if (tag instanceof String) {
+        return "TAG:" + tag;
     }
+
+    if (view instanceof TextView) {
+        return "TEXT:" +
+            ((TextView) view).getText().toString();
+    }
+
+    return null;
+}
+
+private View findFocusableByKey(
+    ViewGroup parent,
+    String key
+) {
+    if (parent == null || key == null) return null;
+
+    for (int i = 0; i < parent.getChildCount(); i++) {
+        View child = parent.getChildAt(i);
+
+        String childKey = getFocusKey(child);
+
+        if (key.equals(childKey) && child.isFocusable()) {
+            return child;
+        }
+
+        if (child instanceof ViewGroup) {
+            View result = findFocusableByKey(
+                (ViewGroup) child, key
+            );
+
+            if (result != null) return result;
+        }
+    }
+
+    return null;
+}
+    
 
     private void addCatalogueItems() {
         int count = 0;
