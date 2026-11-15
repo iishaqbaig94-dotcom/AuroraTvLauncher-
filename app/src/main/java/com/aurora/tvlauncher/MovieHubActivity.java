@@ -305,7 +305,7 @@ public class MovieHubActivity extends Activity {
 
 item.posterUrl = show.posterUrl;
 catalogue.add(item);
-                ));
+                );
             }
 
             if ("TV SHOWS".equals(mode)) {
