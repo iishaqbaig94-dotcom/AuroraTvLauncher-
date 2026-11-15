@@ -128,12 +128,17 @@ public class SettingsActivity extends Activity {
         content.addView(back);
 
         content.post(() -> {
-            if (content.getChildCount() > 0) {
-                View first = content.getChildAt(3);
-                if (first != null) first.requestFocus();
-            }
-        });
+    View firstCard = content.getChildAt(4);
+
+    if (firstCard instanceof LinearLayout) {
+        View firstButton =
+                ((LinearLayout) firstCard).getChildAt(2);
+
+        if (firstButton != null) {
+            firstButton.requestFocus();
+        }
     }
+});
 
     private void addSection(String title) {
         TextView heading = text(
