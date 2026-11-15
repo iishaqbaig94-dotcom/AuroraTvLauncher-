@@ -1,10 +1,13 @@
-
 package com.aurora.tvlauncher;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.Rect;
@@ -14,13 +17,18 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MovieHubActivity extends Activity {
 
@@ -35,6 +43,12 @@ public class MovieHubActivity extends Activity {
     private final int PURPLE = Color.rgb(105, 55, 210);
     private final int DARK = Color.rgb(5, 8, 23);
     private final int CARD = Color.rgb(16, 23, 48);
+
+    private static final ExecutorService posterExecutor =
+        Executors.newFixedThreadPool(3);
+
+    private static final Handler mainHandler =
+        new Handler(Looper.getMainLooper());
 
     private final String[] genres = {
         "All", "Action", "Comedy", "Sci-Fi",
@@ -199,6 +213,7 @@ public class MovieHubActivity extends Activity {
 
         if (!searchQuery.isEmpty()) {
             addInfo("Search: " + searchQuery);
+
             Button clear = makeButton("✕  CLEAR SEARCH");
             clear.setOnClickListener(v -> {
                 searchQuery = "";
@@ -236,6 +251,10 @@ public class MovieHubActivity extends Activity {
 
             addHeading(heading);
             addCatalogueItems();
+
+            if ("TV SHOWS".equals(mode)) {
+                addInfo("TV show data and images provided by TVmaze.");
+            }
         }
 
         addHeading("STREAMING COLLECTION");
@@ -253,12 +272,12 @@ public class MovieHubActivity extends Activity {
 
         addFeatureCard(
             "✦  SMART CONTENT HUB",
-            "Browse your offline catalogue and discover movies and shows."
+            "Browse your offline catalogue and discover TV shows online."
         );
 
         addInfo(
-            "This is an offline sample catalogue. Online posters, live listings " +
-            "and viewing history will be connected in a later upgrade."
+            "Movies use the built-in sample catalogue. TV show listings " +
+            "and posters load from TVmaze when internet is available."
         );
 
         Button back = makeButton("‹   BACK TO AURORA HOME");
@@ -277,55 +296,53 @@ public class MovieHubActivity extends Activity {
             if (initialFocus != null) initialFocus.requestFocus();
         });
     }
-    private void loadOnlineShows() {
-    TvMazeService.loadShows(new TvMazeService.Callback() {
 
-        @Override
-        public void onSuccess(ArrayList<TvMazeService.Show> shows) {
-            // Purane offline TV samples hatao
-            for (int i = catalogue.size() - 1; i >= 0; i--) {
-                if ("TV SHOWS".equals(catalogue.get(i).type)) {
-                    catalogue.remove(i);
+    private void loadOnlineShows() {
+        TvMazeService.loadShows(new TvMazeService.Callback() {
+
+            @Override
+            public void onSuccess(ArrayList<TvMazeService.Show> shows) {
+                for (int i = catalogue.size() - 1; i >= 0; i--) {
+                    if ("TV SHOWS".equals(catalogue.get(i).type)) {
+                        catalogue.remove(i);
+                    }
+                }
+
+                int limit = Math.min(shows.size(), 60);
+
+                for (int i = 0; i < limit; i++) {
+                    TvMazeService.Show show = shows.get(i);
+
+                    MediaItem item = new MediaItem(
+                        show.title,
+                        "TV SHOWS",
+                        show.genre,
+                        show.year,
+                        show.description
+                    );
+
+                    item.posterUrl = show.posterUrl;
+                    catalogue.add(item);
+                }
+
+                if ("TV SHOWS".equals(mode)) {
+                    render();
                 }
             }
 
-            // Online TV shows add karo
-            int limit = Math.min(shows.size(), 60);
-
-            for (int i = 0; i < limit; i++) {
-                TvMazeService.Show show = shows.get(i);
-
-                 MediaItem item = new MediaItem(
-    show.title,
-    "TV SHOWS",
-    show.genre,
-    show.year,
-    show.description
-);
-
-item.posterUrl = show.posterUrl;
-catalogue.add(item);
-                );
+            @Override
+            public void onError(String message) {
+                if ("TV SHOWS".equals(mode)) {
+                    Toast.makeText(
+                        MovieHubActivity.this,
+                        "Offline catalogue loaded",
+                        Toast.LENGTH_SHORT
+                    ).show();
+                }
             }
-
-            if ("TV SHOWS".equals(mode)) {
-                render();
-            }
-        }
-
-        @Override
-        public void onError(String message) {
-            // Internet fail ho toh offline catalogue hi rahega
-            if ("TV SHOWS".equals(mode)) {
-                Toast.makeText(
-                    MovieHubActivity.this,
-                    "Offline catalogue loaded",
-                    Toast.LENGTH_SHORT
-                ).show();
-            }
-        }
-    });
+        });
     }
+
     private void addCatalogueItems() {
         int count = 0;
 
@@ -357,7 +374,7 @@ catalogue.add(item);
         }
     }
 
-    private void addMediaCard(MediaItem item, int number) {
+        private void addMediaCard(MediaItem item, int number) {
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.HORIZONTAL);
         card.setGravity(Gravity.CENTER_VERTICAL);
@@ -366,18 +383,17 @@ catalogue.add(item);
         card.setClickable(true);
         card.setBackground(makeBackground(CARD, PURPLE));
 
-        TextView poster = new TextView(this);
-        poster.setText("✦\n" + number);
-        poster.setTextColor(CYAN);
-        poster.setTextSize(23);
-        poster.setTypeface(null, Typeface.BOLD);
-        poster.setGravity(Gravity.CENTER);
+        ImageView poster = new ImageView(this);
+        poster.setScaleType(ImageView.ScaleType.CENTER_CROP);
         poster.setBackground(makeHeroBackground());
+        poster.setTag(item.posterUrl);
 
         LinearLayout.LayoutParams posterParams =
             new LinearLayout.LayoutParams(82, 112);
         posterParams.setMargins(0, 0, 16, 0);
         card.addView(poster, posterParams);
+
+        loadPoster(item.posterUrl, poster, number);
 
         LinearLayout details = new LinearLayout(this);
         details.setOrientation(LinearLayout.VERTICAL);
@@ -423,6 +439,46 @@ catalogue.add(item);
         content.addView(card, params);
 
         if (initialFocus == null) initialFocus = card;
+    }
+
+    private void loadPoster(String imageUrl, ImageView imageView, int number) {
+        if (imageUrl == null || imageUrl.trim().isEmpty()) {
+            imageView.setImageDrawable(null);
+            return;
+        }
+
+        imageView.setTag(imageUrl);
+
+        posterExecutor.execute(() -> {
+            HttpURLConnection connection = null;
+
+            try {
+                URL url = new URL(imageUrl);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setConnectTimeout(10000);
+                connection.setReadTimeout(15000);
+                connection.setInstanceFollowRedirects(true);
+
+                Bitmap bitmap = BitmapFactory.decodeStream(
+                    connection.getInputStream()
+                );
+
+                if (bitmap != null) {
+                    mainHandler.post(() -> {
+                        if (imageUrl.equals(imageView.getTag())) {
+                            imageView.setImageBitmap(bitmap);
+                        }
+                    });
+                }
+
+            } catch (Exception ignored) {
+                // Poster unavailable: keep the placeholder background.
+            } finally {
+                if (connection != null) {
+                    connection.disconnect();
+                }
+            }
+        });
     }
 
     private void showDetails(MediaItem item) {
@@ -781,4 +837,4 @@ catalogue.add(item);
         finish();
         super.onBackPressed();
     }
-}
+    }
