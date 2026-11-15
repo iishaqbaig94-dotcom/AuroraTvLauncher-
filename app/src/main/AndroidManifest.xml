@@ -42,6 +42,11 @@
         </activity>
 
         <activity
+            android:name=".SettingsActivity"
+            android:exported="false"
+            android:screenOrientation="landscape" />
+
+        <activity
             android:name=".PictureStudioActivity"
             android:exported="false"
             android:screenOrientation="landscape" />
