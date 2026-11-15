@@ -1,3 +1,4 @@
+
 package com.aurora.tvlauncher;
 
 import android.app.Activity;
@@ -65,7 +66,6 @@ public class MainActivity extends Activity {
 
         getWindow().setStatusBarColor(DARK);
         getWindow().setNavigationBarColor(DARK);
-
         getWindow().getDecorView().setSystemUiVisibility(0);
 
         FrameLayout root = new FrameLayout(this);
@@ -475,7 +475,7 @@ public class MainActivity extends Activity {
 
         int[] c = wallpaperColors[index];
 
-        GradientDrawable gradient = new GradientDrawable(
+        GradientDrawable background = new GradientDrawable(
             GradientDrawable.Orientation.TL_BR,
             new int[]{
                 Color.rgb(c[0], c[1], c[2]),
@@ -483,9 +483,10 @@ public class MainActivity extends Activity {
             }
         );
 
-        wallpaperBackground.setImageDrawable(gradient);
+        wallpaperBackground.setImageDrawable(background);
     }
-           private List<ResolveInfo> queryApps(Intent intent) {
+
+    private List<ResolveInfo> queryApps(Intent intent) {
 
         PackageManager pm = getPackageManager();
 
@@ -649,11 +650,24 @@ public class MainActivity extends Activity {
         app.setBackground(normal);
         app.setElevation(dp(4));
 
-        applyFocusEffect(
-            app, normal, focused, 1.07f
-        );
-
+        // One listener handles both focus visuals and focus memory.
         app.setOnFocusChangeListener((view, hasFocus) -> {
+
+            app.animate().cancel();
+
+            app.setBackground(
+                hasFocus ? focused : normal
+            );
+
+            app.animate()
+                .scaleX(hasFocus ? 1.07f : 1f)
+                .scaleY(hasFocus ? 1.07f : 1f)
+                .translationZ(hasFocus ? dp(12) : 0)
+                .setDuration(160)
+                .setInterpolator(
+                    new DecelerateInterpolator()
+                )
+                .start();
 
             if (hasFocus) {
 
