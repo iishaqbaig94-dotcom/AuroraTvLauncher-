@@ -125,186 +125,124 @@ public class MainActivity extends Activity {
     }
 
     private void buildHomeScreen() {
-        addTopBar();
-        addHero();
+    addTopBar();
 
-        addSection("YOUR APPS  ✦");
+    addSection("YOUR APPS");
 
-        appScroll = new HorizontalScrollView(this);
-        appScroll.setHorizontalScrollBarEnabled(false);
-        appScroll.setFocusable(false);
-        appScroll.setClipToPadding(false);
-        appScroll.setDescendantFocusability(
-            ViewGroup.FOCUS_AFTER_DESCENDANTS
-        );
+    appScroll = new HorizontalScrollView(this);
+    appScroll.setHorizontalScrollBarEnabled(false);
+    appScroll.setFocusable(false);
+    appScroll.setClipToPadding(false);
+    appScroll.setDescendantFocusability(
+        ViewGroup.FOCUS_AFTER_DESCENDANTS
+    );
 
-        appRow = new LinearLayout(this);
-        appRow.setOrientation(LinearLayout.HORIZONTAL);
-        appScroll.addView(appRow);
+    appRow = new LinearLayout(this);
+    appRow.setOrientation(LinearLayout.HORIZONTAL);
+    appScroll.addView(appRow);
 
-        mainLayout.addView(appScroll,
-            new LinearLayout.LayoutParams(-1, -2));
+    mainLayout.addView(appScroll,
+        new LinearLayout.LayoutParams(-1, -2));
 
-        loadInstalledApps();
+    loadInstalledApps();
 
-        addSection("RECENTLY OPENED");
+    addSection("RECENTLY OPENED");
 
-        recentScroll = new HorizontalScrollView(this);
-        recentScroll.setHorizontalScrollBarEnabled(false);
-        recentScroll.setFocusable(false);
-        recentScroll.setClipToPadding(false);
-        recentScroll.setDescendantFocusability(
-            ViewGroup.FOCUS_AFTER_DESCENDANTS
-        );
+    recentScroll = new HorizontalScrollView(this);
+    recentScroll.setHorizontalScrollBarEnabled(false);
+    recentScroll.setFocusable(false);
+    recentScroll.setClipToPadding(false);
+    recentScroll.setDescendantFocusability(
+        ViewGroup.FOCUS_AFTER_DESCENDANTS
+    );
 
-        recentRow = new LinearLayout(this);
-        recentRow.setOrientation(LinearLayout.HORIZONTAL);
-        recentScroll.addView(recentRow);
+    recentRow = new LinearLayout(this);
+    recentRow.setOrientation(LinearLayout.HORIZONTAL);
+    recentScroll.addView(recentRow);
 
-        mainLayout.addView(recentScroll,
-            new LinearLayout.LayoutParams(-1, -2));
+    mainLayout.addView(recentScroll,
+        new LinearLayout.LayoutParams(-1, -2));
 
-        loadRecentApps();
+    loadRecentApps();
 
-        addSection("EXPLORE YOUR UNIVERSE");
-        addApp(mainLayout, "Movies", null, null, false);
-        addApp(mainLayout, "TV Shows", null, null, false);
+    addSection("MOVIES & ENTERTAINMENT");
+    addApp(mainLayout, "Movies", null, null, false);
+    addApp(mainLayout, "TV Shows", null, null, false);
 
-        addSection("PERSONALISE YOUR EXPERIENCE");
-        addApp(mainLayout, "Picture Studio", null, null, false);
-        addApp(mainLayout, "Wallpaper Studio", null, null, false);
+    addSection("PERSONALISE YOUR TV");
+    addApp(mainLayout, "Picture Studio", null, null, false);
+    addApp(mainLayout, "Wallpaper Studio", null, null, false);
 
-        addSection("DEVICE CARE");
-        addApp(mainLayout, "AURORA INFINITY CLEANER",
-            null, null, false);
+    addSection("DEVICE CARE");
+    addApp(mainLayout, "AURORA INFINITY CLEANER",
+        null, null, false);
 
-        addSection("SYSTEM");
-        addApp(mainLayout, "Settings", null, null, false);
+    addSection("SYSTEM");
+    addApp(mainLayout, "Settings", null, null, false);
 
-        TextView footer = new TextView(this);
-        footer.setText("AURORA TV  ∞  INFINITY X");
-        footer.setTextColor(Color.rgb(120, 145, 190));
-        footer.setTextSize(11);
-        footer.setLetterSpacing(0.12f);
-        footer.setGravity(Gravity.CENTER);
-        footer.setPadding(0, dp(30), 0, dp(10));
-        mainLayout.addView(footer);
+    TextView footer = new TextView(this);
+    footer.setText("AURORA TV  ∞  INFINITY X");
+    footer.setTextColor(Color.LTGRAY);
+    footer.setTextSize(11);
+    footer.setGravity(Gravity.CENTER);
+    footer.setPadding(0, dp(30), 0, dp(10));
+    mainLayout.addView(footer);
     }
 
     private void addTopBar() {
-        LinearLayout top = new LinearLayout(this);
-        top.setOrientation(LinearLayout.HORIZONTAL);
-        top.setGravity(Gravity.CENTER_VERTICAL);
+    LinearLayout top = new LinearLayout(this);
+    top.setOrientation(LinearLayout.HORIZONTAL);
+    top.setGravity(Gravity.CENTER_VERTICAL);
+    top.setPadding(dp(4), dp(8), dp(4), dp(8));
 
-        LinearLayout brand = new LinearLayout(this);
-        brand.setOrientation(LinearLayout.VERTICAL);
+    LinearLayout brand = new LinearLayout(this);
+    brand.setOrientation(LinearLayout.VERTICAL);
 
-        TextView title = new TextView(this);
-        title.setText("∞  AURORA TV");
-        title.setTextSize(29);
-        title.setTypeface(null, Typeface.BOLD);
-        title.setTextColor(CYAN);
-        title.setLetterSpacing(0.04f);
-        brand.addView(title);
+    TextView title = new TextView(this);
+    title.setText("AURORA TV  ∞");
+    title.setTextSize(24);
+    title.setTypeface(null, Typeface.BOLD);
+    title.setTextColor(Color.WHITE);
+    brand.addView(title);
 
-        TextView subtitle = new TextView(this);
-        subtitle.setText(
-            "INFINITY X  •  THE FUTURE OF ENTERTAINMENT"
-        );
-        subtitle.setTextColor(Color.LTGRAY);
-        subtitle.setTextSize(10);
-        subtitle.setLetterSpacing(0.10f);
-        subtitle.setPadding(dp(2), dp(5), 0, 0);
-        brand.addView(subtitle);
+    TextView subtitle = new TextView(this);
+    subtitle.setText("INFINITY X  •  SMART ENTERTAINMENT");
+    subtitle.setTextColor(Color.LTGRAY);
+    subtitle.setTextSize(10);
+    subtitle.setLetterSpacing(0.08f);
+    subtitle.setPadding(0, dp(4), 0, 0);
+    brand.addView(subtitle);
 
-        top.addView(brand,
-            new LinearLayout.LayoutParams(0, -2, 1));
+    top.addView(brand,
+        new LinearLayout.LayoutParams(0, -2, 1));
 
-        TextView status = new TextView(this);
-        status.setText("● SYSTEM ONLINE");
-        status.setTextColor(CYAN);
-        status.setTextSize(11);
-        status.setTypeface(null, Typeface.BOLD);
-        status.setGravity(Gravity.CENTER);
-        status.setPadding(dp(16), dp(11), dp(16), dp(11));
-        status.setBackground(gradient(new int[]{
-            Color.rgb(10, 35, 60),
-            Color.rgb(20, 25, 65)
-        }, 30, CYAN, 1));
-        top.addView(status);
+    TextView status = new TextView(this);
+    status.setText("●  ONLINE");
+    status.setTextColor(Color.rgb(150, 210, 255));
+    status.setTextSize(11);
+    status.setGravity(Gravity.CENTER);
+    status.setPadding(dp(14), dp(9), dp(14), dp(9));
 
-        mainLayout.addView(top,
-            new LinearLayout.LayoutParams(-1, -2));
+    GradientDrawable statusBg = new GradientDrawable();
+    statusBg.setColor(Color.rgb(35, 40, 48));
+    statusBg.setCornerRadius(dp(20));
+    status.setBackground(statusBg);
 
-        View line = new View(this);
-        line.setBackground(gradient(new int[]{
-            Color.rgb(0, 220, 255),
-            Color.rgb(100, 60, 255),
-            Color.TRANSPARENT
-        }, 2, Color.TRANSPARENT, 0));
+    top.addView(status);
 
-        LinearLayout.LayoutParams lineParams =
-            new LinearLayout.LayoutParams(-1, dp(2));
-        lineParams.setMargins(0, dp(18), 0, dp(10));
-        mainLayout.addView(line, lineParams);
+    mainLayout.addView(top,
+        new LinearLayout.LayoutParams(-1, -2));
+
+    View line = new View(this);
+    line.setBackgroundColor(Color.rgb(65, 70, 80));
+
+    LinearLayout.LayoutParams lineParams =
+        new LinearLayout.LayoutParams(-1, dp(1));
+    lineParams.setMargins(0, dp(10), 0, dp(8));
+    mainLayout.addView(line, lineParams);
     }
+    
 
-    private void addHero() {
-        LinearLayout hero = new LinearLayout(this);
-        hero.setOrientation(LinearLayout.VERTICAL);
-        hero.setGravity(Gravity.CENTER_VERTICAL);
-        hero.setPadding(dp(32), dp(25), dp(32), dp(25));
-
-        hero.setBackground(gradient(new int[]{
-            Color.rgb(5, 35, 90),
-            Color.rgb(30, 25, 105),
-            Color.rgb(90, 25, 145)
-        }, 28, CYAN, 2));
-        hero.setElevation(dp(12));
-
-        TextView small = new TextView(this);
-        small.setText("✦  WELCOME TO YOUR UNIVERSE");
-        small.setTextColor(CYAN);
-        small.setTextSize(12);
-        small.setTypeface(null, Typeface.BOLD);
-        small.setLetterSpacing(0.10f);
-        hero.addView(small);
-
-        TextView heading = new TextView(this);
-        heading.setText("AURORA TV ∞");
-        heading.setTextColor(WHITE);
-        heading.setTextSize(36);
-        heading.setTypeface(null, Typeface.BOLD);
-        heading.setLetterSpacing(0.03f);
-        heading.setPadding(0, dp(10), 0, dp(5));
-        hero.addView(heading);
-
-        TextView description = new TextView(this);
-        description.setText("YOUR ENTERTAINMENT.\nYOUR UNIVERSE.");
-        description.setTextColor(Color.rgb(220, 230, 255));
-        description.setTextSize(15);
-        description.setLineSpacing(dp(3), 1f);
-        hero.addView(description);
-
-        LinearLayout actions = new LinearLayout(this);
-        actions.setOrientation(LinearLayout.HORIZONTAL);
-        actions.setGravity(Gravity.CENTER_VERTICAL);
-        actions.setPadding(0, dp(18), 0, 0);
-
-        addActionButton(actions, "EXPLORE MOVIES",
-            () -> openMovieHub("MOVIES"));
-        addActionButton(actions, "PICTURE STUDIO",
-            () -> startActivity(new Intent(
-                this, PictureStudioActivity.class
-            )));
-
-        hero.addView(actions);
-
-        LinearLayout.LayoutParams params =
-            new LinearLayout.LayoutParams(-1, dp(255));
-        params.setMargins(0, dp(12), 0, dp(20));
-        mainLayout.addView(hero, params);
-    }
 
     private void addActionButton(
         LinearLayout parent, String label, Runnable action
