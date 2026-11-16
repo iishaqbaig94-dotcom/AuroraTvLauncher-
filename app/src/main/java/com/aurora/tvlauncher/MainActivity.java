@@ -124,10 +124,12 @@ public class MainActivity extends Activity {
         return bg;
     }
 
-    private void buildHomeScreen() {
+    
+private void buildHomeScreen() {
     addTopBar();
     addNavigationBar();
 
+    // YOUR APPS
     addSection("YOUR APPS");
 
     appScroll = new HorizontalScrollView(this);
@@ -147,6 +149,7 @@ public class MainActivity extends Activity {
 
     loadInstalledApps();
 
+    // RECENTLY OPENED
     addSection("RECENTLY OPENED");
 
     recentScroll = new HorizontalScrollView(this);
@@ -166,21 +169,62 @@ public class MainActivity extends Activity {
 
     loadRecentApps();
 
+    // MOVIES AND TV SHOWS
     addSection("MOVIES & ENTERTAINMENT");
-    addApp(mainLayout, "Movies", null, null, false);
-    addApp(mainLayout, "TV Shows", null, null, false);
 
+    HorizontalScrollView mediaScroll =
+        new HorizontalScrollView(this);
+    mediaScroll.setHorizontalScrollBarEnabled(false);
+    mediaScroll.setFocusable(false);
+
+    LinearLayout mediaRow = new LinearLayout(this);
+    mediaRow.setOrientation(LinearLayout.HORIZONTAL);
+
+    addApp(mediaRow, "Movies", null, null, true);
+    addApp(mediaRow, "TV Shows", null, null, true);
+
+    mediaScroll.addView(mediaRow);
+    mainLayout.addView(mediaScroll,
+        new LinearLayout.LayoutParams(-1, -2));
+
+    // PERSONALISE YOUR TV
     addSection("PERSONALISE YOUR TV");
-    addApp(mainLayout, "Picture Studio", null, null, false);
-    addApp(mainLayout, "Wallpaper Studio", null, null, false);
 
-    addSection("DEVICE CARE");
-    addApp(mainLayout, "AURORA INFINITY CLEANER",
-        null, null, false);
+    HorizontalScrollView studioScroll =
+        new HorizontalScrollView(this);
+    studioScroll.setHorizontalScrollBarEnabled(false);
+    studioScroll.setFocusable(false);
 
-    addSection("SYSTEM");
-    addApp(mainLayout, "Settings", null, null, false);
+    LinearLayout studioRow = new LinearLayout(this);
+    studioRow.setOrientation(LinearLayout.HORIZONTAL);
 
+    addApp(studioRow, "Picture Studio", null, null, true);
+    addApp(studioRow, "Wallpaper Studio", null, null, true);
+
+    studioScroll.addView(studioRow);
+    mainLayout.addView(studioScroll,
+        new LinearLayout.LayoutParams(-1, -2));
+
+    // DEVICE CARE AND SYSTEM
+    addSection("DEVICE CARE & SYSTEM");
+
+    HorizontalScrollView systemScroll =
+        new HorizontalScrollView(this);
+    systemScroll.setHorizontalScrollBarEnabled(false);
+    systemScroll.setFocusable(false);
+
+    LinearLayout systemRow = new LinearLayout(this);
+    systemRow.setOrientation(LinearLayout.HORIZONTAL);
+
+    addApp(systemRow, "AURORA INFINITY CLEANER",
+        null, null, true);
+    addApp(systemRow, "Settings", null, null, true);
+
+    systemScroll.addView(systemRow);
+    mainLayout.addView(systemScroll,
+        new LinearLayout.LayoutParams(-1, -2));
+
+    // FOOTER
     TextView footer = new TextView(this);
     footer.setText("AURORA TV  ∞  INFINITY X");
     footer.setTextColor(Color.LTGRAY);
@@ -188,7 +232,8 @@ public class MainActivity extends Activity {
     footer.setGravity(Gravity.CENTER);
     footer.setPadding(0, dp(30), 0, dp(10));
     mainLayout.addView(footer);
-    }
+}
+    
     private void addNavigationBar() {
     HorizontalScrollView navScroll = new HorizontalScrollView(this);
     navScroll.setHorizontalScrollBarEnabled(false);
