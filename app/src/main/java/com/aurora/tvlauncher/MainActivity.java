@@ -328,7 +328,9 @@ private void addNavItem(
 
     item.setOnFocusChangeListener((v, hasFocus) -> {
         item.animate().cancel();
-
+         if (hasFocus) {
+    lastFocusedName = label;
+         }
         item.setBackground(hasFocus ? focused : normal);
 
         item.animate()
@@ -846,9 +848,10 @@ params.setMargins(dp(8), dp(8), dp(12), dp(12));
             String text = ((TextView) child)
                 .getText().toString();
 
-            if ((target.equals(text) ||
-                 actionTarget.equals(text)) &&
-                 child.isFocusable()) {
+            if ((name.equals(text) ||
+     target.equals(text) ||
+     actionTarget.equals(text)) &&
+     child.isFocusable()) {
                 return child;
             }
         }
