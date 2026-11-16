@@ -40,10 +40,10 @@ public class MovieHubActivity extends Activity {
     private String selectedGenre = "All";
     private String searchQuery = "";
 
-    private final int CYAN = Color.rgb(0, 220, 255);
-    private final int PURPLE = Color.rgb(105, 55, 210);
-    private final int DARK = Color.rgb(5, 8, 23);
-    private final int CARD = Color.rgb(16, 23, 48);
+    private final int CYAN = Color.rgb(220, 225, 232);
+private final int PURPLE = Color.rgb(75, 80, 88);
+private final int DARK = Color.rgb(12, 14, 17);
+private final int CARD = Color.rgb(30, 33, 38);
 
     private static final ExecutorService posterExecutor =
         Executors.newFixedThreadPool(3);
@@ -188,7 +188,6 @@ public class MovieHubActivity extends Activity {
         initialFocus = null;
 
         addTopBar();
-        addHero();
 
         addHeading("EXPLORE YOUR UNIVERSE");
 
@@ -490,13 +489,13 @@ private View findFocusableByKey(
         card.setOnClickListener(v -> showDetails(item));
 
         card.setOnFocusChangeListener((v, focused) -> {
-            card.setBackground(makeBackground(
-                focused ? Color.rgb(39, 35, 90) : CARD,
-                focused ? CYAN : PURPLE
-            ));
-            card.setScaleX(focused ? 1.025f : 1f);
-            card.setScaleY(focused ? 1.025f : 1f);
-        });
+    card.setBackground(makeBackground(
+        focused ? Color.rgb(65, 70, 78) : CARD,
+        focused ? Color.WHITE : Color.rgb(75, 80, 88)
+    ));
+    card.setScaleX(focused ? 1.04f : 1f);
+    card.setScaleY(focused ? 1.04f : 1f);
+});
 
         LinearLayout.LayoutParams params =
             new LinearLayout.LayoutParams(-1, -2);
@@ -638,39 +637,6 @@ private View findFocusableByKey(
         content.addView(subtitle);
     }
 
-    private void addHero() {
-        LinearLayout hero = new LinearLayout(this);
-        hero.setOrientation(LinearLayout.VERTICAL);
-        hero.setGravity(Gravity.CENTER_VERTICAL);
-        hero.setPadding(25, 22, 25, 22);
-        hero.setBackground(makeHeroBackground());
-
-        TextView tag = new TextView(this);
-        tag.setText("✦  WELCOME TO INFINITY");
-        tag.setTextColor(CYAN);
-        tag.setTextSize(12);
-        tag.setTypeface(null, Typeface.BOLD);
-        hero.addView(tag);
-
-        TextView heading = new TextView(this);
-        heading.setText("ENTERTAINMENT\nWITHOUT LIMITS");
-        heading.setTextColor(Color.WHITE);
-        heading.setTextSize(29);
-        heading.setTypeface(null, Typeface.BOLD);
-        heading.setPadding(0, 12, 0, 8);
-        hero.addView(heading);
-
-        TextView description = new TextView(this);
-        description.setText("Movies  •  Series  •  Your favourite apps");
-        description.setTextColor(Color.rgb(195, 210, 240));
-        description.setTextSize(14);
-        hero.addView(description);
-
-        LinearLayout.LayoutParams params =
-            new LinearLayout.LayoutParams(-1, 190);
-        params.setMargins(0, 10, 0, 15);
-        content.addView(hero, params);
-    }
 
     private void addTab(LinearLayout parent, String label, String value) {
         Button button = makeButton(label);
@@ -851,7 +817,7 @@ private View findFocusableByKey(
     private void addHeading(String text) {
         TextView heading = new TextView(this);
         heading.setText(text);
-        heading.setTextColor(Color.rgb(145, 185, 255));
+        heading.setTextColor(Color.rgb(235, 238, 242));
         heading.setTextSize(17);
         heading.setTypeface(null, Typeface.BOLD);
         heading.setPadding(0, 22, 0, 10);
@@ -886,12 +852,12 @@ private View findFocusableByKey(
         button.setPadding(12, 5, 12, 5);
 
         GradientDrawable normal = makeBackground(
-            CARD, Color.rgb(45, 95, 180)
-        );
+    CARD, Color.rgb(75, 80, 88)
+);
 
-        GradientDrawable focused = makeBackground(
-            Color.rgb(48, 38, 105), CYAN
-        );
+GradientDrawable focused = makeBackground(
+    Color.rgb(65, 70, 78), Color.WHITE
+);
 
         button.setBackground(normal);
 
