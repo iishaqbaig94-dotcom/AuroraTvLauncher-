@@ -82,7 +82,7 @@ public class MainActivity extends Activity {
             new FrameLayout.LayoutParams(-1, -1));
 
         View overlay = new View(this);
-        overlay.setBackgroundColor(Color.argb(175, 3, 6, 20));
+        overlay.setBackgroundColor(Color.argb(225, 8, 10, 14));
         root.addView(overlay,
             new FrameLayout.LayoutParams(-1, -1));
 
@@ -126,6 +126,7 @@ public class MainActivity extends Activity {
 
     private void buildHomeScreen() {
     addTopBar();
+    addNavigationBar();
 
     addSection("YOUR APPS");
 
@@ -188,6 +189,83 @@ public class MainActivity extends Activity {
     footer.setPadding(0, dp(30), 0, dp(10));
     mainLayout.addView(footer);
     }
+    private void addNavigationBar() {
+    HorizontalScrollView navScroll = new HorizontalScrollView(this);
+    navScroll.setHorizontalScrollBarEnabled(false);
+    navScroll.setFocusable(false);
+
+    LinearLayout nav = new LinearLayout(this);
+    nav.setOrientation(LinearLayout.HORIZONTAL);
+    nav.setGravity(Gravity.CENTER_VERTICAL);
+
+    addNavItem(nav, "HOME", () ->
+        pageScroll.smoothScrollTo(0, 0));
+
+    addNavItem(nav, "APPS", () -> {
+        if (appScroll != null) {
+            appScroll.post(() ->
+                pageScroll.smoothScrollTo(0, appScroll.getTop()));
+        }
+    });
+
+    addNavItem(nav, "MOVIES", () ->
+        openMovieHub("MOVIES"));
+
+    addNavItem(nav, "TV SHOWS", () ->
+        openMovieHub("TV SHOWS"));
+
+    addNavItem(nav, "SETTINGS", () ->
+        startActivity(new Intent(this, SettingsActivity.class)));
+
+    navScroll.addView(nav);
+
+    LinearLayout.LayoutParams params =
+        new LinearLayout.LayoutParams(-1, -2);
+    params.setMargins(0, dp(8), 0, dp(8));
+
+    mainLayout.addView(navScroll, params);
+}
+
+private void addNavItem(LinearLayout parent,
+                        String label, Runnable action) {
+    TextView item = new TextView(this);
+    item.setText(label);
+    item.setTextColor(Color.WHITE);
+    item.setTextSize(12);
+    item.setTypeface(null, Typeface.BOLD);
+    item.setGravity(Gravity.CENTER);
+    item.setFocusable(true);
+    item.setClickable(true);
+    item.setPadding(dp(18), dp(11), dp(18), dp(11));
+
+    GradientDrawable normal = new GradientDrawable();
+    normal.setColor(Color.rgb(38, 42, 48));
+    normal.setCornerRadius(dp(20));
+
+    GradientDrawable focused = new GradientDrawable();
+    focused.setColor(Color.rgb(75, 80, 88));
+    focused.setCornerRadius(dp(20));
+    focused.setStroke(dp(2), Color.WHITE);
+
+    item.setBackground(normal);
+
+    item.setOnFocusChangeListener((v, hasFocus) -> {
+        item.setBackground(hasFocus ? focused : normal);
+        item.animate()
+            .scaleX(hasFocus ? 1.05f : 1f)
+            .scaleY(hasFocus ? 1.05f : 1f)
+            .setDuration(140)
+            .start();
+    });
+
+    item.setOnClickListener(v -> action.run());
+
+    LinearLayout.LayoutParams p =
+        new LinearLayout.LayoutParams(-2, dp(44));
+    p.setMargins(0, 0, dp(10), 0);
+
+    parent.addView(item, p);
+}
 
     private void addTopBar() {
     LinearLayout top = new LinearLayout(this);
@@ -282,7 +360,7 @@ public class MainActivity extends Activity {
         TextView section = new TextView(this);
         section.setText(name);
         section.setTextSize(17);
-        section.setTextColor(Color.rgb(145, 190, 255));
+        section.setTextColor(Color.rgb(230, 233, 238));
         section.setTypeface(null, Typeface.BOLD);
         section.setLetterSpacing(0.06f);
         section.setPadding(0, dp(22), 0, dp(12));
@@ -424,14 +502,14 @@ public class MainActivity extends Activity {
         }
 
         GradientDrawable normal = gradient(new int[]{
-            Color.rgb(15, 30, 65),
-            Color.rgb(12, 18, 45)
-        }, 20, Color.rgb(40, 90, 170), 1);
+    Color.rgb(38, 42, 48),
+    Color.rgb(30, 34, 40)
+}, 20, Color.rgb(65, 70, 78), 1);
 
-        GradientDrawable focused = gradient(new int[]{
-            Color.rgb(55, 40, 125),
-            Color.rgb(20, 95, 155)
-        }, 20, CYAN, 3);
+GradientDrawable focused = gradient(new int[]{
+    Color.rgb(85, 90, 98),
+    Color.rgb(60, 65, 73)
+}, 20, Color.WHITE, 3);
 
         app.setBackground(normal);
         app.setElevation(dp(4));
