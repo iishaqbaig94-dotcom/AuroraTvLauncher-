@@ -234,14 +234,26 @@ private void buildHomeScreen() {
     mainLayout.addView(footer);
 }
     
-    private void addNavigationBar() {
-    HorizontalScrollView navScroll = new HorizontalScrollView(this);
+    
+private void addNavigationBar() {
+    HorizontalScrollView navScroll =
+        new HorizontalScrollView(this);
+
     navScroll.setHorizontalScrollBarEnabled(false);
     navScroll.setFocusable(false);
+    navScroll.setClipToPadding(false);
+    navScroll.setPadding(dp(4), dp(5), dp(4), dp(5));
 
     LinearLayout nav = new LinearLayout(this);
     nav.setOrientation(LinearLayout.HORIZONTAL);
     nav.setGravity(Gravity.CENTER_VERTICAL);
+    nav.setPadding(dp(8), dp(5), dp(8), dp(5));
+
+    GradientDrawable navBackground = new GradientDrawable();
+    navBackground.setColor(Color.rgb(13, 19, 31));
+    navBackground.setCornerRadius(dp(20));
+    navBackground.setStroke(dp(1), Color.rgb(40, 53, 75));
+    nav.setBackground(navBackground);
 
     addNavItem(nav, "HOME", () ->
         pageScroll.smoothScrollTo(0, 0));
@@ -266,10 +278,12 @@ private void buildHomeScreen() {
 
     LinearLayout.LayoutParams params =
         new LinearLayout.LayoutParams(-1, -2);
-    params.setMargins(0, dp(8), 0, dp(8));
+
+    params.setMargins(0, dp(8), 0, dp(12));
 
     mainLayout.addView(navScroll, params);
 }
+    
 
    
 private void addNavItem(
