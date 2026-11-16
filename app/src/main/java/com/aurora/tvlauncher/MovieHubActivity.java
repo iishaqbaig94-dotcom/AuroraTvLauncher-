@@ -768,7 +768,70 @@ private View findFocusableByKey(
             );
         }
     }
+    private void addRecentStreamingApps() {
+    android.content.SharedPreferences prefs =
+        getSharedPreferences("AuroraRecentApps", MODE_PRIVATE);
 
+    org.json.JSONArray recent;
+
+    try {
+        recent = new org.json.JSONArray(
+            prefs.getString("recent_packages", "[]")
+        );
+    } catch (Exception e) {
+        recent = new org.json.JSONArray();
+    }
+
+    boolean found = false;
+    PackageManager pm = getPackageManager();
+
+    for (int i = 0; i < recent.length(); i++) {
+        String packageName = recent.optString(i, "");
+
+        if (packageName.isEmpty()) continue;
+
+        Intent launch =
+            pm.getLaunchIntentForPackage(packageName);
+
+        if (launch == null) continue;
+
+        try {
+            CharSequence label = pm.getApplicationLabel(
+                pm.getApplicationInfo(packageName, 0)
+            );
+
+            String appName = label == null
+                ? packageName : label.toString();
+
+            Button button = makeButton("▶   CONTINUE WITH " + appName);
+
+            button.setOnClickListener(v -> {
+                try {
+                    startActivity(launch);
+                } catch (Exception e) {
+                    Toast.makeText(
+                        this, "Unable to open " + appName,
+                        Toast.LENGTH_SHORT
+                    ).show();
+                }
+            });
+
+            LinearLayout.LayoutParams params =
+                new LinearLayout.LayoutParams(-1, 62);
+
+            params.setMargins(0, 5, 0, 5);
+            content.addView(button, params);
+
+            found = true;
+
+        } catch (Exception ignored) {
+        }
+    }
+
+    if (!found) {
+        addInfo("Open Netflix, YouTube or another streaming app first. Your recent apps will appear here.");
+    }
+    }
     private void recordRecentApp(String packageName) {
         if (packageName == null ||
                 packageName.equals(getPackageName())) {
