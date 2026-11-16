@@ -670,16 +670,16 @@ private void addApp(
         LinearLayout.LayoutParams params;
 
         if (horizontal) {
-            params = new LinearLayout.LayoutParams(
-                dp(205), dp(155)
-            );
-        } else {
-            params = new LinearLayout.LayoutParams(
-                -1, dp(75)
-            );
-        }
+    params = new LinearLayout.LayoutParams(
+        dp(220), dp(150)
+    );
+} else {
+    params = new LinearLayout.LayoutParams(
+        -1, dp(75)
+    );
+}
 
-        params.setMargins(dp(6), dp(8), dp(14), dp(10));
+params.setMargins(dp(8), dp(8), dp(12), dp(12));
 
         parent.addView(app, params);
 }
