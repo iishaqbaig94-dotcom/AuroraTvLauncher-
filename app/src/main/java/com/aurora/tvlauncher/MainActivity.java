@@ -444,16 +444,37 @@ private void addTopBar() {
         parent.addView(button, p);
     }
 
-    private void addSection(String name) {
-        TextView section = new TextView(this);
-        section.setText(name);
-        section.setTextSize(17);
-        section.setTextColor(Color.rgb(230, 233, 238));
-        section.setTypeface(null, Typeface.BOLD);
-        section.setLetterSpacing(0.06f);
-        section.setPadding(0, dp(22), 0, dp(12));
-        mainLayout.addView(section);
-    }
+    
+private void addSection(String name) {
+    LinearLayout heading = new LinearLayout(this);
+    heading.setOrientation(LinearLayout.HORIZONTAL);
+    heading.setGravity(Gravity.CENTER_VERTICAL);
+    heading.setPadding(dp(4), dp(18), 0, dp(10));
+
+    View accent = new View(this);
+    GradientDrawable accentBg = new GradientDrawable();
+    accentBg.setColor(Color.rgb(65, 145, 255));
+    accentBg.setCornerRadius(dp(3));
+    accent.setBackground(accentBg);
+
+    LinearLayout.LayoutParams accentParams =
+        new LinearLayout.LayoutParams(dp(4), dp(20));
+    accentParams.setMargins(0, 0, dp(11), 0);
+    heading.addView(accent, accentParams);
+
+    TextView section = new TextView(this);
+    section.setText(name);
+    section.setTextSize(15);
+    section.setTextColor(Color.WHITE);
+    section.setTypeface(null, Typeface.BOLD);
+    section.setLetterSpacing(0.09f);
+
+    heading.addView(section);
+
+    mainLayout.addView(heading,
+        new LinearLayout.LayoutParams(-1, -2));
+}
+    
 
     private void addWallpaperBackground() {
         android.content.SharedPreferences prefs =
