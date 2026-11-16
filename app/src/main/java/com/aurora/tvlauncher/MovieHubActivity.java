@@ -225,11 +225,9 @@ private final int CARD = Color.rgb(30, 33, 38);
         }
 
         if ("CONTINUE".equals(mode)) {
-            addHeading("CONTINUE WATCHING");
-            addInfo(
-                "Viewing history is not connected yet. " +
-                "Open a streaming service below to continue watching."
-            );
+    addHeading("CONTINUE WATCHING");
+    addRecentStreamingApps();
+        }
         } else {
             addHeading("BROWSE BY GENRE");
 
