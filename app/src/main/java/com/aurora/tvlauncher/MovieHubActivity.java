@@ -227,7 +227,6 @@ private final int CARD = Color.rgb(30, 33, 38);
         if ("CONTINUE".equals(mode)) {
     addHeading("CONTINUE WATCHING");
     addRecentStreamingApps();
-        }
         } else {
             addHeading("BROWSE BY GENRE");
 
