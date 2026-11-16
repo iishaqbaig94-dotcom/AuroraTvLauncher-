@@ -513,7 +513,8 @@ private void addNavItem(LinearLayout parent,
         return label.toString();
     }
 
-         private void addApp(
+         
+private void addApp(
         LinearLayout parent,
         String name,
         String packageName,
@@ -521,6 +522,7 @@ private void addNavItem(LinearLayout parent,
         boolean horizontal
     ) {
         TextView app = new TextView(this);
+
         app.setText(name + "   ›");
         app.setTextSize(horizontal ? 15 : 17);
         app.setTextColor(WHITE);
@@ -529,7 +531,7 @@ private void addNavItem(LinearLayout parent,
         app.setFocusable(true);
         app.setFocusableInTouchMode(true);
         app.setClickable(true);
-        app.setPadding(dp(16), dp(18), dp(16), dp(18));
+        app.setPadding(dp(14), dp(18), dp(14), dp(18));
 
         app.setImportantForAccessibility(
             View.IMPORTANT_FOR_ACCESSIBILITY_YES
@@ -539,35 +541,48 @@ private void addNavItem(LinearLayout parent,
             try {
                 Drawable icon = getPackageManager()
                     .getApplicationIcon(packageName);
-                icon.setBounds(0, 0, dp(52), dp(52));
+
+                icon.setBounds(0, 0, dp(54), dp(54));
                 app.setCompoundDrawables(null, icon, null, null);
                 app.setCompoundDrawablePadding(dp(12));
+
             } catch (Exception ignored) {
             }
         }
 
-        GradientDrawable normal = gradient(new int[]{
-    Color.rgb(38, 42, 48),
-    Color.rgb(30, 34, 40)
-}, 20, Color.rgb(65, 70, 78), 1);
+        GradientDrawable normal = gradient(
+            new int[]{
+                Color.rgb(24, 30, 48),
+                Color.rgb(15, 19, 34)
+            },
+            18,
+            Color.rgb(55, 68, 95),
+            1
+        );
 
-GradientDrawable focused = gradient(new int[]{
-    Color.rgb(85, 90, 98),
-    Color.rgb(60, 65, 73)
-}, 20, Color.WHITE, 3);
+        GradientDrawable focused = gradient(
+            new int[]{
+                Color.rgb(35, 100, 180),
+                Color.rgb(85, 55, 170)
+            },
+            18,
+            Color.rgb(170, 220, 255),
+            3
+        );
 
         app.setBackground(normal);
-        app.setElevation(dp(4));
+        app.setElevation(dp(3));
 
         app.setOnFocusChangeListener((view, hasFocus) -> {
             app.animate().cancel();
+
             app.setBackground(hasFocus ? focused : normal);
 
             app.animate()
-                .scaleX(hasFocus ? 1.07f : 1f)
-                .scaleY(hasFocus ? 1.07f : 1f)
-                .translationZ(hasFocus ? dp(12) : 0)
-                .setDuration(160)
+                .scaleX(hasFocus ? 1.09f : 1f)
+                .scaleY(hasFocus ? 1.09f : 1f)
+                .translationZ(hasFocus ? dp(14) : 0)
+                .setDuration(180)
                 .setInterpolator(new DecelerateInterpolator())
                 .start();
 
@@ -578,6 +593,7 @@ GradientDrawable focused = gradient(new int[]{
                     Rect rect = new Rect(
                         0, 0, app.getWidth(), app.getHeight()
                     );
+
                     app.requestRectangleOnScreen(rect, true);
                 });
             }
@@ -591,16 +607,19 @@ GradientDrawable focused = gradient(new int[]{
 
         if (horizontal) {
             params = new LinearLayout.LayoutParams(
-                dp(190), dp(145)
+                dp(205), dp(155)
             );
         } else {
-            params = new LinearLayout.LayoutParams(-1, dp(75));
+            params = new LinearLayout.LayoutParams(
+                -1, dp(75)
+            );
         }
 
-        params.setMargins(dp(5), dp(6), dp(12), dp(8));
-        parent.addView(app, params);
-    }
+        params.setMargins(dp(6), dp(8), dp(14), dp(10));
 
+        parent.addView(app, params);
+}
+    
     // RECENTLY OPENED APPS
 
     private void recordRecentApp(String packageName) {
