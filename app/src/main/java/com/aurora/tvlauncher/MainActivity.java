@@ -271,46 +271,71 @@ private void buildHomeScreen() {
     mainLayout.addView(navScroll, params);
 }
 
-private void addNavItem(LinearLayout parent,
-                        String label, Runnable action) {
+   
+private void addNavItem(
+        LinearLayout parent,
+        String label,
+        Runnable action
+    ) {
     TextView item = new TextView(this);
+
     item.setText(label);
     item.setTextColor(Color.WHITE);
     item.setTextSize(12);
     item.setTypeface(null, Typeface.BOLD);
     item.setGravity(Gravity.CENTER);
     item.setFocusable(true);
+    item.setFocusableInTouchMode(true);
     item.setClickable(true);
-    item.setPadding(dp(18), dp(11), dp(18), dp(11));
+    item.setPadding(dp(20), dp(12), dp(20), dp(12));
 
-    GradientDrawable normal = new GradientDrawable();
-    normal.setColor(Color.rgb(38, 42, 48));
-    normal.setCornerRadius(dp(20));
+    GradientDrawable normal = gradient(
+        new int[]{
+            Color.rgb(22, 27, 40),
+            Color.rgb(15, 19, 30)
+        },
+        22,
+        Color.rgb(55, 65, 85),
+        1
+    );
 
-    GradientDrawable focused = new GradientDrawable();
-    focused.setColor(Color.rgb(75, 80, 88));
-    focused.setCornerRadius(dp(20));
-    focused.setStroke(dp(2), Color.WHITE);
+    GradientDrawable focused = gradient(
+        new int[]{
+            Color.rgb(30, 105, 190),
+            Color.rgb(90, 55, 175)
+        },
+        22,
+        Color.rgb(175, 220, 255),
+        2
+    );
 
     item.setBackground(normal);
+    item.setElevation(dp(2));
 
     item.setOnFocusChangeListener((v, hasFocus) -> {
+        item.animate().cancel();
+
         item.setBackground(hasFocus ? focused : normal);
+
         item.animate()
-            .scaleX(hasFocus ? 1.05f : 1f)
-            .scaleY(hasFocus ? 1.05f : 1f)
-            .setDuration(140)
+            .scaleX(hasFocus ? 1.08f : 1f)
+            .scaleY(hasFocus ? 1.08f : 1f)
+            .translationZ(hasFocus ? dp(8) : 0)
+            .setDuration(170)
+            .setInterpolator(new DecelerateInterpolator())
             .start();
     });
 
     item.setOnClickListener(v -> action.run());
 
     LinearLayout.LayoutParams p =
-        new LinearLayout.LayoutParams(-2, dp(44));
-    p.setMargins(0, 0, dp(10), 0);
+        new LinearLayout.LayoutParams(-2, dp(46));
+
+    p.setMargins(0, 0, dp(12), 0);
 
     parent.addView(item, p);
 }
+    
 
     private void addTopBar() {
     LinearLayout top = new LinearLayout(this);
