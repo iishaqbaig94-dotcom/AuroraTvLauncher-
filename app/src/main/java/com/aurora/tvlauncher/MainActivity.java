@@ -337,28 +337,29 @@ private void addNavItem(
 }
     
 
-    private void addTopBar() {
+    
+private void addTopBar() {
     LinearLayout top = new LinearLayout(this);
     top.setOrientation(LinearLayout.HORIZONTAL);
     top.setGravity(Gravity.CENTER_VERTICAL);
-    top.setPadding(dp(4), dp(8), dp(4), dp(8));
+    top.setPadding(dp(8), dp(12), dp(8), dp(12));
 
     LinearLayout brand = new LinearLayout(this);
     brand.setOrientation(LinearLayout.VERTICAL);
 
     TextView title = new TextView(this);
     title.setText("AURORA TV  ∞");
-    title.setTextSize(24);
+    title.setTextSize(26);
     title.setTypeface(null, Typeface.BOLD);
     title.setTextColor(Color.WHITE);
     brand.addView(title);
 
     TextView subtitle = new TextView(this);
-    subtitle.setText("INFINITY X  •  SMART ENTERTAINMENT");
-    subtitle.setTextColor(Color.LTGRAY);
+    subtitle.setText("INFINITY X");
+    subtitle.setTextColor(Color.rgb(165, 175, 195));
     subtitle.setTextSize(10);
-    subtitle.setLetterSpacing(0.08f);
-    subtitle.setPadding(0, dp(4), 0, 0);
+    subtitle.setLetterSpacing(0.18f);
+    subtitle.setPadding(0, dp(3), 0, 0);
     brand.addView(subtitle);
 
     top.addView(brand,
@@ -366,14 +367,16 @@ private void addNavItem(
 
     TextView status = new TextView(this);
     status.setText("●  ONLINE");
-    status.setTextColor(Color.rgb(150, 210, 255));
+    status.setTextColor(Color.rgb(170, 210, 255));
     status.setTextSize(11);
+    status.setTypeface(null, Typeface.BOLD);
     status.setGravity(Gravity.CENTER);
-    status.setPadding(dp(14), dp(9), dp(14), dp(9));
+    status.setPadding(dp(16), dp(10), dp(16), dp(10));
 
     GradientDrawable statusBg = new GradientDrawable();
-    statusBg.setColor(Color.rgb(35, 40, 48));
-    statusBg.setCornerRadius(dp(20));
+    statusBg.setColor(Color.rgb(25, 34, 50));
+    statusBg.setCornerRadius(dp(18));
+    statusBg.setStroke(dp(1), Color.rgb(55, 85, 125));
     status.setBackground(statusBg);
 
     top.addView(status);
@@ -382,13 +385,14 @@ private void addNavItem(
         new LinearLayout.LayoutParams(-1, -2));
 
     View line = new View(this);
-    line.setBackgroundColor(Color.rgb(65, 70, 80));
+    line.setBackgroundColor(Color.rgb(45, 55, 72));
 
     LinearLayout.LayoutParams lineParams =
         new LinearLayout.LayoutParams(-1, dp(1));
-    lineParams.setMargins(0, dp(10), 0, dp(8));
+    lineParams.setMargins(0, dp(8), 0, dp(8));
     mainLayout.addView(line, lineParams);
-    }
+}
+    
     
 
 
