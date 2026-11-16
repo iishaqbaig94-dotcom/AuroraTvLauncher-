@@ -305,6 +305,7 @@ private final int CARD = Color.rgb(30, 33, 38);
         initialFocus.requestFocus();
     }
 });
+}
 
     
 private void loadOnlineShows() {
