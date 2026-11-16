@@ -184,8 +184,10 @@ private final int CARD = Color.rgb(30, 33, 38);
     }
 
     private void render() {
-        content.removeAllViews();
-        initialFocus = null;
+    String previousFocusKey = getFocusKey(getCurrentFocus());
+
+    content.removeAllViews();
+    initialFocus = null;
 
         addTopBar();
 
@@ -293,9 +295,16 @@ private final int CARD = Color.rgb(30, 33, 38);
         if (initialFocus == null) initialFocus = back;
 
         content.post(() -> {
-            if (initialFocus != null) initialFocus.requestFocus();
-        });
+    View restore = findFocusableByKey(
+        content, previousFocusKey
+    );
+
+    if (restore != null) {
+        restore.requestFocus();
+    } else if (initialFocus != null) {
+        initialFocus.requestFocus();
     }
+});
 
     
 private void loadOnlineShows() {
