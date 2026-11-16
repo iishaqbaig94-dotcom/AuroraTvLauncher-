@@ -499,14 +499,26 @@ private View findFocusableByKey(
         card.setOnClickListener(v -> showDetails(item));
 
         card.setOnFocusChangeListener((v, focused) -> {
+    card.animate().cancel();
+
     card.setBackground(makeBackground(
-        focused ? Color.rgb(65, 70, 78) : CARD,
+        focused ? Color.rgb(30, 85, 145) : CARD,
         focused ? Color.WHITE : Color.rgb(75, 80, 88)
     ));
-    card.setScaleX(focused ? 1.04f : 1f);
-    card.setScaleY(focused ? 1.04f : 1f);
-});
 
+    card.animate()
+        .scaleX(focused ? 1.04f : 1f)
+        .scaleY(focused ? 1.04f : 1f)
+        .setDuration(150)
+        .start();
+
+    if (focused) {
+        Rect rect = new Rect(
+            0, 0, card.getWidth(), card.getHeight()
+        );
+        card.requestRectangleOnScreen(rect, true);
+    }
+});
         LinearLayout.LayoutParams params =
             new LinearLayout.LayoutParams(-1, -2);
         params.setMargins(0, 7, 0, 7);
